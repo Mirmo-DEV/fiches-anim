@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Règles de sécurité de la base Firestore.
+//
+// À copier-coller dans : console Firebase > Firestore Database > onglet "Règles",
+// puis cliquer sur "Publier".
+//
+// Ce qu'elles font :
+//   - la collection "activites" est la seule accessible ;
+//   - tout le reste de la base est fermé ;
+//   - une fiche ne peut pas dépasser 900 000 caractères (limite Firestore : 1 Mo),
+//     ce qui protège d'une image trop lourde ;
+//   - la date limite ci-dessous coupe tout accès automatiquement si vous oubliez
+//     de revenir. PENSEZ À LA REPOUSSER une fois par an (changez juste l'année).
+//
+// Attention, à comprendre : il n'y a pas de mot de passe côté base. N'importe qui
+// connaissant l'identifiant de votre projet pourrait lire ou écrire dans "activites"
+// tant que la date n'est pas dépassée. C'est le compromis accepté pour éviter
+// d'avoir à gérer des comptes utilisateurs. Vos fiches d'animation ne sont pas
+// des données sensibles, et l'adresse de votre projet n'est publiée nulle part.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /activites/{fiche} {
+      allow read: if request.time < timestamp.date(2027, 12, 31);
+      allow write: if request.time < timestamp.date(2027, 12, 31)
+                   && request.resource.data.schema.size() < 900000;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
