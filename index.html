@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="fr" data-theme="clair">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14342b">
+<title>Mes fiches d'animation</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<!-- ==========================================================================
+     ███  ZONE À MODIFIER — TOUT CE QUI VOUS CONCERNE EST ICI  ███
+
+     Il n'y a que DEUX choses à changer dans tout ce fichier, et elles sont
+     juste en dessous, dans le bloc <script> qui suit ce commentaire :
+
+       1) CODE_ACCES  — le code demandé à l'ouverture de l'application.
+       2) CONFIG_FIREBASE — les identifiants de votre base de données.
+
+     Tout le reste du fichier, vous pouvez l'ignorer.
+     ========================================================================== -->
+<script>
+
+  /* ------------------------------------------------------------------
+     1) LE CODE D'ACCÈS
+     ------------------------------------------------------------------
+     C'est le code demandé quand on ouvre la page. Il est retenu par le
+     téléphone : vous ne le tapez qu'une seule fois par appareil.
+
+     POUR LE CHANGER  : remplacez anim2026 ci-dessous par ce que vous voulez.
+     POUR LE SUPPRIMER: mettez  ''  (deux apostrophes collées) à la place.
+                        Exemple :  const CODE_ACCES = '';
+     ------------------------------------------------------------------ */
+
+  const CODE_ACCES = 'anim2026';
+
+
+  /* ------------------------------------------------------------------
+     2) LA CONFIGURATION FIREBASE (votre base de données)
+     ------------------------------------------------------------------
+     Tant que vous n'avez rien collé ici, l'application fonctionne quand
+     même, mais en « mode local » : les fiches sont enregistrées dans le
+     navigateur de cet appareil uniquement, sans synchronisation.
+     C'est pratique pour essayer tout de suite.
+
+     Quand vous aurez créé votre projet Firebase (la marche à suivre vous
+     a été donnée), vous obtiendrez un petit bloc de texte qui ressemble
+     exactement à celui-ci. Remplacez les 6 lignes ci-dessous par les
+     vôtres, en gardant les apostrophes et les virgules.
+     ------------------------------------------------------------------ */
+
+  const CONFIG_FIREBASE = {
+    apiKey:            "COLLEZ_ICI",
+    authDomain:        "COLLEZ_ICI",
+    projectId:         "COLLEZ_ICI",
+    storageBucket:     "COLLEZ_ICI",
+    messagingSenderId: "COLLEZ_ICI",
+    appId:             "COLLEZ_ICI"
+  };
+
+  /* ===== FIN DE LA ZONE À MODIFIER — ne touchez plus rien en dessous ===== */
+
+</script>
+
+<style>
+/* ============================ THÈME ET COULEURS ============================ */
+:root{
+  --vert-profond:#14342b;
+  --vert-profond-2:#1d4a3c;
+  --citron:#c3f04a;
+  --citron-sombre:#9bd42a;
+  --bleu:#2f7df6;
+  --bleu-clair:#e6efff;
+
+  --fond:#f6f7f2;
+  --fond-2:#ffffff;
+  --carte:#ffffff;
+  --texte:#152019;
+  --texte-doux:#5c6b61;
+  --bord:#e0e5dc;
+  --ombre:0 1px 2px rgba(20,52,43,.06), 0 6px 18px rgba(20,52,43,.07);
+  --ombre-forte:0 10px 40px rgba(20,52,43,.18);
+  --r:16px;
+  --r-s:11px;
+  --entete:var(--vert-profond);
+  --sur-entete:#eefbe0;
+
+  --police-titre:"Fraunces",Georgia,"Times New Roman",serif;
+  --police-texte:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --police-chiffre:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+html[data-theme="sombre"]{
+  --fond:#0f1613;
+  --fond-2:#16211c;
+  --carte:#18241e;
+  --texte:#e9f0e9;
+  --texte-doux:#9db0a4;
+  --bord:#2a3a32;
+  --bleu-clair:#16283f;
+  --ombre:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+  --ombre-forte:0 10px 40px rgba(0,0,0,.6);
+  --entete:#0b120f;
+  --sur-entete:#d7f0b8;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--fond);color:var(--texte);
+  font-family:var(--police-texte);font-size:16px;line-height:1.55;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+h1,h2,h3{font-family:var(--police-titre);line-height:1.15;margin:0;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--bleu)}
+:focus-visible{outline:3px solid var(--bleu);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.chiffre{font-family:var(--police-chiffre);font-variant-numeric:tabular-nums}
+.conteneur{max-width:860px;margin:0 auto;padding:0 14px}
+.masque{display:none!important}
+
+/* ============================ PORTE D'ENTRÉE ============================ */
+#porte{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+  background:linear-gradient(160deg,var(--vert-profond),#0b1f19 70%);
+}
+#porte .boite{width:100%;max-width:360px;text-align:center;color:#eefbe0}
+#porte h1{font-size:30px;color:var(--citron);margin-bottom:6px}
+#porte p{color:#a9c4b3;margin:0 0 22px;font-size:15px}
+#porte input{
+  width:100%;padding:15px 16px;border-radius:var(--r-s);border:1px solid #2c5548;
+  background:#0d201a;color:#eefbe0;text-align:center;font-size:19px;letter-spacing:.14em;
+}
+#porte button{
+  width:100%;margin-top:12px;padding:15px;border:0;border-radius:var(--r-s);
+  background:var(--citron);color:#0f2a20;font-weight:600;font-size:16px;
+}
+#porte .err{color:#ffb4a8;min-height:22px;font-size:14px;margin-top:10px}
+
+/* ============================ EN-TÊTE ============================ */
+header.top{
+  background:var(--entete);color:var(--sur-entete);
+  padding:calc(12px + env(safe-area-inset-top)) 0 12px;
+  position:sticky;top:0;z-index:30;
+}
+header.top .rangee{display:flex;align-items:center;gap:10px}
+header.top h1{font-size:21px;color:var(--citron);flex:1;min-width:0}
+header.top h1 span{display:block;font-family:var(--police-texte);font-size:11px;
+  color:#8fae9c;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.ico{
+  background:rgba(255,255,255,.09);border:0;color:var(--sur-entete);
+  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:17px;
+}
+.ico:hover{background:rgba(255,255,255,.18)}
+[hidden]{display:none!important}
+.bandeau-etat{font-size:12.5px;padding:7px 14px;text-align:center;background:var(--bleu-clair);color:var(--bleu)}
+html[data-theme="sombre"] .bandeau-etat{color:#9cc3ff}
+
+/* ============================ BOUTONS ============================ */
+.btn{
+  border:1px solid var(--bord);background:var(--carte);color:var(--texte);
+  padding:11px 15px;border-radius:var(--r-s);font-weight:500;font-size:15px;
+  display:inline-flex;align-items:center;gap:7px;min-height:44px;
+}
+.btn:hover{border-color:var(--texte-doux)}
+.btn-p{background:var(--vert-profond);color:#eefbe0;border-color:var(--vert-profond)}
+.btn-p:hover{background:var(--vert-profond-2)}
+.btn-citron{background:var(--citron);color:#12291f;border-color:var(--citron-sombre);font-weight:600}
+.btn-danger{color:#c0392b;border-color:#e9c3bd}
+html[data-theme="sombre"] .btn-danger{color:#ff9d8f;border-color:#5c322c}
+.btn-mini{padding:7px 11px;min-height:36px;font-size:13.5px}
+
+/* ============================ FILTRES ============================ */
+.phrase{
+  background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);
+  padding:15px;margin:14px 0;box-shadow:var(--ombre);
+  font-size:17px;line-height:2.35;
+}
+.trou{
+  border:0;background:var(--bleu-clair);color:var(--bleu);font-weight:600;
+  padding:6px 12px;border-radius:9px;font-family:var(--police-chiffre);font-size:15px;
+  min-height:38px;border-bottom:2px dashed var(--bleu);
+}
+html[data-theme="sombre"] .trou{color:#9cc3ff;border-bottom-color:#4d80c9}
+.trou.vide{background:transparent;color:var(--texte-doux);border-bottom-color:var(--bord);font-weight:500}
+select.trou{appearance:none;-webkit-appearance:none;padding-right:12px}
+.recherche{
+  width:100%;padding:13px 15px;border-radius:var(--r-s);border:1px solid var(--bord);
+  background:var(--carte);font-size:16px;
+}
+.rapides{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.rapides::-webkit-scrollbar{display:none}
+.puce{
+  white-space:nowrap;border:1px solid var(--bord);background:var(--carte);color:var(--texte-doux);
+  padding:8px 14px;border-radius:999px;font-size:14px;min-height:40px;
+}
+.puce[aria-pressed="true"]{background:var(--vert-profond);color:var(--citron);border-color:var(--vert-profond)}
+.ligne-compte{display:flex;align-items:center;gap:10px;margin:12px 0 8px;font-size:14px;color:var(--texte-doux)}
+.ligne-compte b{color:var(--texte)}
+
+/* ============================ CARTES ============================ */
+.cartes{display:grid;gap:12px;padding-bottom:100px}
+.carte{
+  background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);
+  padding:15px 16px;box-shadow:var(--ombre);text-align:left;width:100%;position:relative;
+  transition:transform .12s ease;
+}
+.carte:active{transform:scale(.988)}
+.carte.brouillon{border-left:5px solid #e8a33d}
+.carte h3{font-size:19px;padding-right:26px}
+.carte .res{color:var(--texte-doux);font-size:14.5px;margin:5px 0 10px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.donnees{display:flex;flex-wrap:wrap;gap:6px}
+.d{
+  font-family:var(--police-chiffre);font-size:12.5px;background:var(--fond);
+  border:1px solid var(--bord);padding:3px 9px;border-radius:7px;color:var(--texte-doux);
+}
+.d.tag{font-family:var(--police-texte)}
+.coin{position:absolute;top:13px;right:14px;font-size:16px;line-height:1}
+.etiq-brouillon{display:inline-block;background:#fdf0d9;color:#8a5a10;font-size:11.5px;
+  font-weight:600;padding:2px 8px;border-radius:6px;margin-bottom:7px;letter-spacing:.03em}
+html[data-theme="sombre"] .etiq-brouillon{background:#3d2f13;color:#f0c46e}
+
+.vide{
+  text-align:center;padding:44px 18px;color:var(--texte-doux);
+  background:var(--carte);border:1px dashed var(--bord);border-radius:var(--r);
+}
+.vide .gros{font-size:38px;margin-bottom:8px}
+.vide h3{font-size:19px;color:var(--texte);margin-bottom:6px}
+
+/* ============================ BOUTON FLOTTANT ============================ */
+.flottant{
+  position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:25;
+  background:var(--citron);color:#12291f;border:0;border-radius:999px;
+  padding:15px 22px;font-weight:700;font-size:16px;box-shadow:var(--ombre-forte);
+  display:inline-flex;gap:8px;align-items:center;
+}
+
+/* ============================ FICHE DÉTAIL ============================ */
+.fiche{padding-bottom:110px}
+.fiche .titre{margin:16px 0 4px;font-size:29px}
+.fiche .res{color:var(--texte-doux);font-size:16.5px;margin:0 0 16px}
+.bandeau{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:1px;
+  background:var(--bord);border:1px solid var(--bord);border-radius:var(--r);overflow:hidden;margin-bottom:18px;
+}
+.bandeau div{background:var(--carte);padding:11px 8px;text-align:center}
+.bandeau .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--texte-doux)}
+.bandeau .val{font-family:var(--police-chiffre);font-size:16px;font-weight:700;margin-top:2px}
+.bloc{margin-bottom:22px}
+.bloc h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--citron-sombre);
+  font-family:var(--police-texte);font-weight:600;margin-bottom:9px}
+html[data-theme="sombre"] .bloc h2{color:var(--citron)}
+.bloc ul{margin:0;padding-left:20px}
+.bloc ul li{margin-bottom:6px}
+.etapes{list-style:none;padding:0;margin:0;counter-reset:e}
+.etapes li{counter-increment:e;display:flex;gap:12px;margin-bottom:11px}
+.etapes li::before{
+  content:counter(e);flex:0 0 27px;height:27px;border-radius:50%;
+  background:var(--vert-profond);color:var(--citron);display:grid;place-items:center;
+  font-family:var(--police-chiffre);font-size:13px;font-weight:700;
+}
+.encadre{background:var(--carte);border:1px solid var(--bord);border-radius:var(--r-s);padding:13px 15px}
+.encadre.alerte{border-left:4px solid #e8a33d}
+.schema img{width:100%;border-radius:var(--r-s);border:1px solid var(--bord);display:block}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+
+/* ============================ FORMULAIRE ============================ */
+.champ{margin-bottom:20px}
+.champ>label{display:block;font-size:13px;font-weight:600;color:var(--texte-doux);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.champ .aide{font-size:13px;color:var(--texte-doux);margin:-3px 0 7px;text-transform:none;letter-spacing:0;font-weight:400}
+.saisie{
+  width:100%;padding:13px 14px;border-radius:var(--r-s);border:1px solid var(--bord);
+  background:var(--carte);font-size:16px;
+}
+textarea.saisie{min-height:90px;resize:vertical;line-height:1.5}
+.choix{display:flex;flex-wrap:wrap;gap:8px}
+.opt{
+  border:1px solid var(--bord);background:var(--carte);color:var(--texte);
+  padding:10px 15px;border-radius:999px;font-size:14.5px;min-height:44px;
+}
+.opt[aria-pressed="true"]{background:var(--vert-profond);color:var(--citron);border-color:var(--vert-profond);font-weight:600}
+.opt.num{font-family:var(--police-chiffre)}
+.rangee-liste{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.rangee-liste .saisie{flex:1}
+.sup{border:1px solid var(--bord);background:var(--carte);color:#c0392b;width:44px;height:46px;
+  border-radius:var(--r-s);flex:0 0 44px;font-size:18px}
+.numero{flex:0 0 28px;height:46px;display:grid;place-items:center;font-family:var(--police-chiffre);
+  color:var(--texte-doux);font-size:14px}
+.suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.sugg{border:1px dashed var(--bord);background:transparent;color:var(--texte-doux);
+  padding:6px 11px;border-radius:999px;font-size:13.5px;min-height:36px}
+.sugg:hover{border-style:solid;color:var(--texte)}
+.barre-bas{
+  position:sticky;bottom:0;background:var(--fond);border-top:1px solid var(--bord);
+  padding:12px 0 calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;margin-top:26px;
+}
+.barre-bas .btn{flex:1;justify-content:center}
+
+/* ============================ RÉGLAGES / MODALE ============================ */
+.voile{position:fixed;inset:0;background:rgba(10,20,16,.55);z-index:60;display:grid;
+  place-items:end center;padding:0}
+.modale{
+  background:var(--fond);width:100%;max-width:520px;border-radius:20px 20px 0 0;
+  padding:20px 18px calc(24px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;
+}
+.modale h2{font-size:22px;margin-bottom:4px}
+.modale .btn{width:100%;justify-content:flex-start;margin-bottom:9px}
+@media(min-width:620px){.voile{place-items:center}.modale{border-radius:20px}}
+
+#toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom));
+  background:var(--vert-profond);color:var(--citron);padding:11px 20px;border-radius:999px;
+  font-size:14.5px;z-index:90;box-shadow:var(--ombre-forte);opacity:0;pointer-events:none;
+  transition:opacity .22s ease;max-width:88vw;text-align:center;
+}
+#toast.on{opacity:1}
+
+/* ============================ IMPRESSION A4 ============================ */
+@media print{
+  header.top,.flottant,.actions,.bandeau-etat,#toast,.no-print{display:none!important}
+  body{background:#fff;color:#000;font-size:11.5pt}
+  .conteneur{max-width:100%;padding:0}
+  .fiche{padding:0}
+  .fiche .titre{font-size:24pt}
+  .bandeau{border:1px solid #999;background:#999}
+  .bandeau div{background:#fff}
+  .carte,.encadre{border:1px solid #bbb;box-shadow:none;break-inside:avoid}
+  .bloc{break-inside:avoid}
+  .bloc h2{color:#000;border-bottom:1px solid #ccc;padding-bottom:3px}
+  .etapes li::before{background:#000;color:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  @page{margin:16mm}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ PORTE D'ENTRÉE ============================ -->
+<div id="porte" class="masque">
+  <div class="boite">
+    <h1>Mes fiches d'animation</h1>
+    <p>Entrez votre code d'accès</p>
+    <input id="porte-code" type="password" inputmode="text" autocomplete="off" placeholder="• • • • • • • •" aria-label="Code d'accès">
+    <button id="porte-ok">Entrer</button>
+    <div class="err" id="porte-err"></div>
+  </div>
+</div>
+
+<!-- ============================ APPLICATION ============================ -->
+<div id="app" class="masque">
+  <header class="top">
+    <div class="conteneur rangee">
+      <button class="ico" id="btn-retour" title="Retour" aria-label="Retour" hidden>←</button>
+      <h1 id="titre-page">Mes fiches<span id="sous-titre">répertoire d'animation</span></h1>
+      <button class="ico" id="btn-theme" title="Changer de thème" aria-label="Changer de thème">◐</button>
+      <button class="ico" id="btn-reglages" title="Réglages" aria-label="Réglages">☰</button>
+    </div>
+  </header>
+  <div class="bandeau-etat" id="bandeau-etat" hidden></div>
+  <main class="conteneur" id="vue"></main>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ==========================================================================
+   Application « Mes fiches d'animation »
+   Un seul fichier, JavaScript classique, base Firebase Firestore.
+   ========================================================================== */
+
+/* ---------- Récupération des réglages définis en haut du fichier ---------- */
+const ACCES  = CODE_ACCES;
+const FBCONF = CONFIG_FIREBASE;
+
+/* ==========================================================================
+   1. LISTES DE RÉFÉRENCE
+   ========================================================================== */
+const OBJECTIFS = ['brise-glace','prénoms','coopération','défoulement','adresse',
+                   'réflexion','créativité','confiance','retour au calme','grand jeu'];
+const LIEUX     = ['intérieur','extérieur','les deux'];
+const ENERGIES  = ['calme','moyen','défoulement'];
+const DUREES    = [5,10,15,20,30,45,60,90,120];
+const TRANCHES  = [[3,5],[6,8],[9,11],[12,14],[15,17],[6,12],[3,17]];
+
+/* ==========================================================================
+   2. PETITS OUTILS
+   ========================================================================== */
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = t => String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nb  = v => { const n = parseInt(v,10); return Number.isFinite(n)? n : null; };
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'f'+Date.now()+Math.random().toString(36).slice(2,8));
+
+let minuteurToast;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(minuteurToast); minuteurToast = setTimeout(()=>t.classList.remove('on'), 2400);
+}
+function dateFr(iso){
+  if(!iso) return null;
+  const d = new Date(iso); if(isNaN(d)) return null;
+  return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+}
+function aujourdhui(){ return new Date().toISOString().slice(0,10); }
+
+/* Une fiche complète, avec des valeurs par défaut pour tous les champs. */
+function ficheVierge(){
+  return { id:uid(), nom:'', resume:'', joueursMin:null, joueursMax:null,
+    ageMin:null, ageMax:null, duree:null, lieu:'', energie:'',
+    objectif:[], materiel:[], deroule:[], variantes:'', securite:'', notes:'',
+    schema:'', tags:[], favori:false, selection:false, statut:'brouillon',
+    derniereUtilisation:'', maj:Date.now() };
+}
+function normaliser(o){ return Object.assign(ficheVierge(), o||{}); }
+
+/* Une fiche est « complète » si l'essentiel est renseigné. */
+function estComplete(f){
+  return !!(f.nom && f.resume && f.duree && f.lieu && f.energie
+            && f.joueursMin && f.ageMin && f.deroule.length);
+}
+
+/* ==========================================================================
+   3. LA BASE DE DONNÉES
+   --------------------------------------------------------------------------
+   Deux modes possibles, transparents pour le reste du programme :
+     • « firebase » : synchronisation en temps réel entre tous vos appareils.
+     • « local »    : enregistrement dans ce navigateur uniquement. C'est le
+                      mode de secours tant que la configuration Firebase n'a
+                      pas été collée en haut du fichier.
+   ========================================================================== */
+const CLE_LOCALE = 'fiches-anim-local';
+let MODE = 'local';
+let base = null;              // outils Firestore une fois chargés
+let fiches = [];              // toutes les fiches, en mémoire
+let auChangement = ()=>{};    // fonction appelée à chaque mise à jour
+
+const configOk = FBCONF.apiKey && !String(FBCONF.apiKey).includes('COLLEZ_ICI');
+
+async function demarrerBase(){
+  if(configOk){
+    try{
+      const [{ initializeApp }, fs] = await Promise.all([
+        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
+      ]);
+      const app = initializeApp(FBCONF);
+      const db  = fs.getFirestore(app);
+      base = { fs, db, col: fs.collection(db,'activites') };
+      MODE = 'firebase';
+      // Écoute permanente : toute modification faite ailleurs arrive ici.
+      fs.onSnapshot(base.col,
+        snap => { fiches = snap.docs.map(d=>normaliser({...d.data(), id:d.id})); auChangement(); },
+        err  => { etat('⚠️ Connexion à la base impossible : '+err.message); }
+      );
+      return;
+    }catch(e){
+      etat('⚠️ Firebase n\'a pas pu démarrer ('+e.message+'). Mode local activé.');
+    }
+  }else{
+    etat('ℹ️ Mode local : vos fiches restent sur cet appareil. Collez votre configuration Firebase en haut du fichier pour synchroniser.');
+  }
+  MODE = 'local';
+  fiches = lireLocal();
+  auChangement();
+}
+function lireLocal(){
+  try{ return (JSON.parse(localStorage.getItem(CLE_LOCALE)) || []).map(normaliser); }
+  catch{ return []; }
+}
+function ecrireLocal(){ localStorage.setItem(CLE_LOCALE, JSON.stringify(fiches)); }
+
+async function enregistrer(f){
+  f.maj = Date.now();
+  if(MODE==='firebase'){
+    const {doc,setDoc} = base.fs;
+    const copie = {...f}; delete copie.id;
+    await setDoc(doc(base.db,'activites',f.id), copie);
+  }else{
+    const i = fiches.findIndex(x=>x.id===f.id);
+    if(i>=0) fiches[i] = f; else fiches.push(f);
+    ecrireLocal(); auChangement();
+  }
+}
+async function supprimer(id){
+  if(MODE==='firebase'){
+    const {doc,deleteDoc} = base.fs;
+    await deleteDoc(doc(base.db,'activites',id));
+  }else{
+    fiches = fiches.filter(x=>x.id!==id); ecrireLocal(); auChangement();
+  }
+}
+async function enregistrerLot(liste){
+  for(const f of liste) await enregistrer(normaliser(f));
+}
+function etat(msg){
+  const b = $('#bandeau-etat');
+  if(!msg){ b.hidden = true; return; }
+  b.textContent = msg; b.hidden = false;
+}
+
+/* ==========================================================================
+   4. LES FILTRES
+   ========================================================================== */
+let filtres = { joueurs:null, age:null, lieu:'', energie:'', dureeMax:null, texte:'', rapide:'' };
+
+function filtresActifs(){
+  return !!(filtres.joueurs||filtres.age||filtres.lieu||filtres.energie
+            ||filtres.dureeMax||filtres.texte||filtres.rapide);
+}
+function resultats(){
+  const t = filtres.texte.trim().toLowerCase();
+  return fiches.filter(f=>{
+    if(filtres.joueurs){
+      const min = f.joueursMin ?? 0, max = f.joueursMax ?? 999;
+      if(filtres.joueurs < min || filtres.joueurs > max) return false;
+    }
+    if(filtres.age){
+      const min = f.ageMin ?? 0, max = f.ageMax ?? 99;
+      if(filtres.age < min || filtres.age > max) return false;
+    }
+    if(filtres.lieu && f.lieu && f.lieu!=='les deux' && f.lieu!==filtres.lieu) return false;
+    if(filtres.energie && f.energie!==filtres.energie) return false;
+    if(filtres.dureeMax && f.duree && f.duree>filtres.dureeMax) return false;
+
+    if(filtres.rapide==='sans-materiel' && f.materiel.length) return false;
+    if(filtres.rapide==='avec-materiel' && !f.materiel.length) return false;
+    if(filtres.rapide==='favoris'   && !f.favori)    return false;
+    if(filtres.rapide==='selection' && !f.selection) return false;
+    if(filtres.rapide==='brouillon' && f.statut!=='brouillon') return false;
+
+    if(t){
+      const foin = [f.nom, f.resume, f.materiel.join(' '), f.tags.join(' '),
+                    f.deroule.join(' '), f.objectif.join(' ')].join(' ').toLowerCase();
+      if(!foin.includes(t)) return false;
+    }
+    return true;
+  }).sort((a,b)=>
+      (b.favori?1:0)-(a.favori?1:0) ||
+      a.nom.localeCompare(b.nom,'fr')
+  );
+}
+/* Sert au message « rien trouvé » : quel critère bloque le plus ? */
+function critereBloquant(){
+  const test = cle => {
+    const sauve = filtres[cle], vide = (typeof sauve === 'string') ? '' : null;
+    filtres[cle] = vide; const n = resultats().length; filtres[cle] = sauve; return n;
+  };
+  const noms = {joueurs:'le nombre d\'enfants', age:'l\'âge', lieu:'le lieu',
+                energie:'l\'énergie', dureeMax:'la durée', texte:'la recherche', rapide:'le filtre rapide'};
+  let meilleur = null, score = 0;
+  for(const cle of Object.keys(noms)){
+    if(!filtres[cle]) continue;
+    const n = test(cle);
+    if(n > score){ score = n; meilleur = noms[cle]; }
+  }
+  return meilleur ? `Essayez d'assouplir ${meilleur} : ${score} fiche${score>1?'s':''} correspondrai${score>1?'ent':'t'} alors.` : '';
+}
+
+/* ==========================================================================
+   5. NAVIGATION (adresse du navigateur → écran affiché)
+   ========================================================================== */
+function aller(hash){ location.hash = hash; }
+function router(){
+  const h = location.hash || '#/';
+  const m = h.match(/^#\/(a|e)\/(.+)$/);
+  $('#btn-retour').hidden = (h === '#/');
+  window.scrollTo(0,0);
+  if(m && m[1]==='a') return vueFiche(m[2]);
+  if(m && m[1]==='e') return vueEdition(m[2]);
+  return vueListe();
+}
+window.addEventListener('hashchange', router);
+
+/* ==========================================================================
+   6. ÉCRAN : LA LISTE
+   ========================================================================== */
+function vueListe(){
+  $('#titre-page').innerHTML = 'Mes fiches<span id="sous-titre">répertoire d\'animation</span>';
+  const rapides = [
+    ['','Toutes'],['favoris','★ Favoris'],['selection','● Sélection du jour'],
+    ['sans-materiel','Sans matériel'],['avec-materiel','Avec matériel'],['brouillon','À compléter']
+  ];
+  $('#vue').innerHTML = `
+    <div class="phrase">
+      Il me faut un jeu pour
+      <button class="trou ${filtres.joueurs?'':'vide'}" data-f="joueurs">${filtres.joueurs ?? '___'}</button>
+      enfants de
+      <button class="trou ${filtres.age?'':'vide'}" data-f="age">${filtres.age ?? '___'}</button>
+      ans,
+      <button class="trou ${filtres.lieu?'':'vide'}" data-f="lieu">${filtres.lieu || 'n\'importe où'}</button>,
+      <button class="trou ${filtres.energie?'':'vide'}" data-f="energie">${filtres.energie || 'toute énergie'}</button>,
+      en moins de
+      <button class="trou ${filtres.dureeMax?'':'vide'}" data-f="dureeMax">${filtres.dureeMax ?? '___'}</button>
+      min.
+    </div>
+    <input class="recherche" id="rech" type="search" placeholder="Rechercher un mot (nom, matériel, étape…)" value="${esc(filtres.texte)}">
+    <div class="rapides" style="margin-top:10px">
+      ${rapides.map(([v,l])=>`<button class="puce" data-rapide="${v}" aria-pressed="${filtres.rapide===v}">${l}</button>`).join('')}
+    </div>
+    <div class="ligne-compte">
+      <b class="chiffre" id="compte">0</b> <span id="mot-fiche">fiche</span>
+      ${filtresActifs()?'<button class="btn btn-mini" id="raz" style="margin-left:auto">✕ Tout effacer</button>':''}
+    </div>
+    <div class="cartes" id="cartes"></div>
+    <button class="flottant" id="nouveau">＋ Nouvelle fiche</button>`;
+
+  $$('[data-f]').forEach(b => b.onclick = ()=>choisirFiltre(b.dataset.f));
+  $$('[data-rapide]').forEach(b => b.onclick = ()=>{
+    filtres.rapide = (filtres.rapide===b.dataset.rapide) ? '' : b.dataset.rapide;
+    vueListe();
+  });
+  const rech = $('#rech');
+  rech.oninput = ()=>{ filtres.texte = rech.value; dessinerCartes(); majCompte(); };
+  const raz = $('#raz');
+  if(raz) raz.onclick = ()=>{ filtres = {joueurs:null,age:null,lieu:'',energie:'',dureeMax:null,texte:'',rapide:''}; vueListe(); };
+  $('#nouveau').onclick = ()=>aller('#/e/nouvelle');
+
+  dessinerCartes(); majCompte();
+}
+function majCompte(){
+  const n = resultats().length;
+  const c = $('#compte'); if(!c) return;
+  c.textContent = n;
+  $('#mot-fiche').textContent = n>1 ? 'fiches trouvées' : 'fiche trouvée';
+}
+function dessinerCartes(){
+  const zone = $('#cartes'); if(!zone) return;
+  const liste = resultats();
+
+  if(!fiches.length){
+    zone.innerHTML = `<div class="vide">
+      <div class="gros">🎯</div><h3>Votre répertoire est vide</h3>
+      <p>Installez la bibliothèque de démarrage : une quarantaine de jeux classiques déjà rédigés, que vous pourrez modifier ensuite.</p>
+      <button class="btn btn-citron" id="installer">📚 Installer les 40 jeux de départ</button>
+      <p style="margin-top:14px"><button class="btn btn-mini" id="depart-vide">Non merci, je commence de zéro</button></p>
+    </div>`;
+    $('#installer').onclick = installerBibliotheque;
+    $('#depart-vide').onclick = ()=>aller('#/e/nouvelle');
+    return;
+  }
+  if(!liste.length){
+    zone.innerHTML = `<div class="vide">
+      <div class="gros">🔍</div><h3>Aucune fiche ne correspond</h3>
+      <p>${esc(critereBloquant() || 'Essayez d\'enlever un critère.')}</p>
+      <button class="btn" id="raz2">✕ Effacer tous les filtres</button></div>`;
+    $('#raz2').onclick = ()=>{ filtres = {joueurs:null,age:null,lieu:'',energie:'',dureeMax:null,texte:'',rapide:''}; vueListe(); };
+    return;
+  }
+  zone.innerHTML = liste.map(f=>{
+    const brouillon = f.statut==='brouillon';
+    const d = [];
+    if(f.joueursMin||f.joueursMax) d.push(`👥 ${f.joueursMin??'?'}–${f.joueursMax??'?'}`);
+    if(f.ageMin||f.ageMax)         d.push(`🎂 ${f.ageMin??'?'}–${f.ageMax??'?'} ans`);
+    if(f.duree)                    d.push(`⏱ ${f.duree} min`);
+    if(f.lieu)                     d.push(f.lieu);
+    if(f.energie)                  d.push(f.energie);
+    return `<button class="carte ${brouillon?'brouillon':''}" data-id="${f.id}">
+      <span class="coin">${f.favori?'★':''}${f.selection?'●':''}</span>
+      ${brouillon?'<span class="etiq-brouillon">À COMPLÉTER</span>':''}
+      <h3>${esc(f.nom||'(sans nom)')}</h3>
+      ${f.resume?`<p class="res">${esc(f.resume)}</p>`:''}
+      <div class="donnees">${d.map(x=>`<span class="d">${esc(x)}</span>`).join('')}</div>
+    </button>`;
+  }).join('');
+  $$('.carte',zone).forEach(c => c.onclick = ()=>aller('#/a/'+c.dataset.id));
+}
+
+/* Petits sélecteurs de filtre, ouverts au clic sur un « trou » de la phrase. */
+function choisirFiltre(cle){
+  const cfg = {
+    joueurs:  {titre:'Combien d\'enfants ?', valeurs:[4,6,8,10,12,15,20,25,30,40,50], suffixe:''},
+    age:      {titre:'Quel âge ?', valeurs:[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], suffixe:' ans'},
+    lieu:     {titre:'Où ?', valeurs:LIEUX},
+    energie:  {titre:'Quelle énergie ?', valeurs:ENERGIES},
+    dureeMax: {titre:'Durée maximum', valeurs:DUREES, suffixe:' min'}
+  }[cle];
+  modale(cfg.titre, `
+    <div class="choix" id="choix-filtre">
+      ${cfg.valeurs.map(v=>`<button class="opt ${typeof v==='number'?'num':''}" data-v="${v}"
+         aria-pressed="${String(filtres[cle])===String(v)}">${v}${cfg.suffixe||''}</button>`).join('')}
+    </div>
+    <button class="btn" id="filtre-aucun" style="margin-top:16px;width:100%;justify-content:center">Peu importe</button>`,
+    boite=>{
+      $$('[data-v]',boite).forEach(b => b.onclick = ()=>{
+        const v = b.dataset.v;
+        filtres[cle] = (typeof cfg.valeurs[0]==='number') ? nb(v) : v;
+        fermerModale(); vueListe();
+      });
+      $('#filtre-aucun',boite).onclick = ()=>{
+        filtres[cle] = (typeof cfg.valeurs[0]==='number') ? null : '';
+        fermerModale(); vueListe();
+      };
+    });
+}
+
+/* ==========================================================================
+   7. ÉCRAN : LA FICHE
+   ========================================================================== */
+function vueFiche(id){
+  const f = fiches.find(x=>x.id===id);
+  if(!f){ $('#vue').innerHTML = '<div class="vide"><h3>Fiche introuvable</h3></div>'; return; }
+  $('#titre-page').innerHTML = 'Fiche<span id="sous-titre">'+esc(f.nom)+'</span>';
+
+  const cases = [
+    ['Joueurs', (f.joueursMin||f.joueursMax) ? `${f.joueursMin??'?'}–${f.joueursMax??'?'}` : '—'],
+    ['Âge',     (f.ageMin||f.ageMax) ? `${f.ageMin??'?'}–${f.ageMax??'?'}` : '—'],
+    ['Durée',   f.duree ? f.duree+' min' : '—'],
+    ['Lieu',    f.lieu || '—'],
+    ['Énergie', f.energie || '—'],
+    ['Jouée le',dateFr(f.derniereUtilisation) || 'jamais']
+  ];
+  const bloc = (titre, contenu) => contenu ? `<div class="bloc"><h2>${titre}</h2>${contenu}</div>` : '';
+
+  $('#vue').innerHTML = `<div class="fiche">
+    ${f.statut==='brouillon'?'<span class="etiq-brouillon">FICHE À COMPLÉTER</span>':''}
+    <h1 class="titre">${esc(f.nom||'(sans nom)')}</h1>
+    ${f.resume?`<p class="res">${esc(f.resume)}</p>`:''}
+    <div class="bandeau">
+      ${cases.map(([l,v])=>`<div><div class="lab">${l}</div><div class="val">${esc(v)}</div></div>`).join('')}
+    </div>
+
+    <div class="actions no-print">
+      <button class="btn ${f.favori?'btn-citron':''}" id="a-fav">${f.favori?'★ Favori':'☆ Favori'}</button>
+      <button class="btn ${f.selection?'btn-citron':''}" id="a-sel">${f.selection?'● Dans la sélection':'○ Sélection du jour'}</button>
+      <button class="btn" id="a-joue">✓ Je l'ai jouée aujourd'hui</button>
+    </div>
+
+    ${bloc('Objectifs', f.objectif.length ? `<div class="donnees">${f.objectif.map(o=>`<span class="d tag">${esc(o)}</span>`).join('')}</div>`:'')}
+    ${bloc('Matériel',  f.materiel.length ? `<ul>${f.materiel.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>` : '<div class="encadre">Aucun matériel nécessaire.</div>')}
+    ${bloc('Déroulé',   f.deroule.length ? `<ol class="etapes">${f.deroule.map(e=>`<li><span>${esc(e)}</span></li>`).join('')}</ol>`:'')}
+    ${bloc('Schéma',    f.schema ? `<div class="schema"><img src="${f.schema}" alt="Schéma de l'activité"></div>`:'')}
+    ${bloc('Variantes', f.variantes ? `<div class="encadre">${esc(f.variantes).replace(/\n/g,'<br>')}</div>`:'')}
+    ${bloc('Points de vigilance', f.securite ? `<div class="encadre alerte">${esc(f.securite).replace(/\n/g,'<br>')}</div>`:'')}
+    ${bloc('Mes notes', f.notes ? `<div class="encadre">${esc(f.notes).replace(/\n/g,'<br>')}</div>`:'')}
+    ${bloc('Mots-clés', f.tags.length ? `<div class="donnees">${f.tags.map(t=>`<span class="d tag">#${esc(t)}</span>`).join('')}</div>`:'')}
+
+    <div class="actions no-print" style="border-top:1px solid var(--bord);padding-top:18px">
+      <button class="btn btn-p" id="a-modif">✎ Modifier</button>
+      <button class="btn" id="a-dup">⧉ Dupliquer</button>
+      <button class="btn" id="a-imp">⎙ Imprimer</button>
+      <button class="btn btn-danger" id="a-sup">🗑 Supprimer</button>
+    </div>
+  </div>`;
+
+  $('#a-fav').onclick  = async()=>{ f.favori=!f.favori; await enregistrer(f); toast(f.favori?'Ajoutée aux favoris':'Retirée des favoris'); vueFiche(id); };
+  $('#a-sel').onclick  = async()=>{ f.selection=!f.selection; await enregistrer(f); toast(f.selection?'Ajoutée à la sélection du jour':'Retirée de la sélection'); vueFiche(id); };
+  $('#a-joue').onclick = async()=>{ f.derniereUtilisation=aujourdhui(); await enregistrer(f); toast('Noté : jouée aujourd\'hui'); vueFiche(id); };
+  $('#a-modif').onclick= ()=>aller('#/e/'+id);
+  $('#a-imp').onclick  = ()=>window.print();
+  $('#a-dup').onclick  = async()=>{
+    const c = normaliser({...f, id:uid(), nom:f.nom+' (variante)', favori:false, selection:false, derniereUtilisation:''});
+    await enregistrer(c); toast('Copie créée'); aller('#/e/'+c.id);
+  };
+  $('#a-sup').onclick  = ()=>confirmer(
+    'Supprimer cette fiche ?', `« ${f.nom} » sera définitivement effacée. Cette action est irréversible.`,
+    async()=>{ await supprimer(id); toast('Fiche supprimée'); aller('#/'); });
+}
+
+/* ==========================================================================
+   8. ÉCRAN : LA SAISIE
+   ========================================================================== */
+let brouillonEnCours = null;
+
+function vueEdition(id){
+  const nouvelle = (id==='nouvelle');
+  const f = brouillonEnCours = nouvelle
+      ? ficheVierge()
+      : normaliser(JSON.parse(JSON.stringify(fiches.find(x=>x.id===id) || ficheVierge())));
+
+  $('#titre-page').innerHTML = (nouvelle?'Nouvelle fiche':'Modifier')+'<span id="sous-titre">seul le nom est obligatoire</span>';
+
+  const boutons = (valeurs, cle, num=false, suffixe='') => valeurs.map(v=>
+    `<button type="button" class="opt ${num?'num':''}" data-cle="${cle}" data-v="${v}"
+      aria-pressed="${String(f[cle])===String(v)}">${v}${suffixe}</button>`).join('');
+
+  $('#vue').innerHTML = `<form id="form" class="fiche" autocomplete="off">
+
+    <div class="champ">
+      <label for="c-nom">Nom de l'activité *</label>
+      <input class="saisie" id="c-nom" value="${esc(f.nom)}" placeholder="L'épervier" required>
+    </div>
+
+    <div class="champ">
+      <label for="c-res">En une phrase</label>
+      <input class="saisie" id="c-res" value="${esc(f.resume)}" placeholder="Traverser le terrain sans se faire attraper.">
+    </div>
+
+    <div class="champ">
+      <label>Nombre de joueurs</label>
+      <div class="rangee-liste">
+        <input class="saisie" id="c-jmin" type="number" inputmode="numeric" min="1" placeholder="de" value="${f.joueursMin??''}">
+        <input class="saisie" id="c-jmax" type="number" inputmode="numeric" min="1" placeholder="à"  value="${f.joueursMax??''}">
+      </div>
+    </div>
+
+    <div class="champ">
+      <label>Tranche d'âge</label>
+      <div class="choix" id="c-tranches">
+        ${TRANCHES.map(([a,b])=>`<button type="button" class="opt num" data-age="${a}-${b}"
+          aria-pressed="${f.ageMin===a&&f.ageMax===b}">${a}–${b} ans</button>`).join('')}
+      </div>
+      <div class="rangee-liste" style="margin-top:9px">
+        <input class="saisie" id="c-amin" type="number" inputmode="numeric" min="1" max="99" placeholder="âge min" value="${f.ageMin??''}">
+        <input class="saisie" id="c-amax" type="number" inputmode="numeric" min="1" max="99" placeholder="âge max" value="${f.ageMax??''}">
+      </div>
+    </div>
+
+    <div class="champ">
+      <label>Durée</label>
+      <div class="choix" id="c-duree">${boutons(DUREES,'duree',true,' min')}</div>
+    </div>
+
+    <div class="champ">
+      <label>Lieu</label>
+      <div class="choix" id="c-lieu">${boutons(LIEUX,'lieu')}</div>
+    </div>
+
+    <div class="champ">
+      <label>Énergie</label>
+      <div class="choix" id="c-energie">${boutons(ENERGIES,'energie')}</div>
+    </div>
+
+    <div class="champ">
+      <label>Objectifs</label>
+      <div class="aide">Plusieurs choix possibles.</div>
+      <div class="choix" id="c-objectifs">
+        ${OBJECTIFS.map(o=>`<button type="button" class="opt" data-obj="${esc(o)}"
+          aria-pressed="${f.objectif.includes(o)}">${o}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="champ">
+      <label>Matériel</label>
+      <div class="aide">Une ligne par élément.</div>
+      <div id="l-materiel"></div>
+      <button type="button" class="btn btn-mini" id="add-materiel">＋ Ajouter une ligne</button>
+      <div class="suggestions" id="sugg-materiel"></div>
+    </div>
+
+    <div class="champ">
+      <label>Déroulé</label>
+      <div class="aide">Une ligne par étape, dans l'ordre.</div>
+      <div id="l-deroule"></div>
+      <button type="button" class="btn btn-mini" id="add-deroule">＋ Ajouter une étape</button>
+    </div>
+
+    <div class="champ">
+      <label>Schéma</label>
+      <div class="aide">Photographiez un croquis fait à la main. L'image est réduite automatiquement.</div>
+      <div id="zone-schema"></div>
+      <input type="file" id="c-photo" accept="image/*" capture="environment" hidden>
+      <button type="button" class="btn" id="btn-photo">📷 Prendre ou choisir une photo</button>
+    </div>
+
+    <div class="champ">
+      <label for="c-var">Variantes</label>
+      <textarea class="saisie" id="c-var" placeholder="Avec les plus petits : …">${esc(f.variantes)}</textarea>
+    </div>
+
+    <div class="champ">
+      <label for="c-sec">Points de vigilance</label>
+      <textarea class="saisie" id="c-sec" placeholder="Délimiter le terrain loin de la route.">${esc(f.securite)}</textarea>
+    </div>
+
+    <div class="champ">
+      <label for="c-notes">Mes notes</label>
+      <textarea class="saisie" id="c-notes" placeholder="A très bien marché avec le groupe des 8 ans.">${esc(f.notes)}</textarea>
+    </div>
+
+    <div class="champ">
+      <label for="c-tags">Mots-clés</label>
+      <div class="aide">Séparés par des virgules.</div>
+      <input class="saisie" id="c-tags" value="${esc(f.tags.join(', '))}" placeholder="extérieur, classique, sans matériel">
+    </div>
+
+    <div class="champ">
+      <label for="c-date">Dernière fois jouée</label>
+      <input class="saisie" id="c-date" type="date" value="${esc(f.derniereUtilisation)}">
+    </div>
+
+    <div class="barre-bas no-print">
+      <button type="button" class="btn" id="annuler">Annuler</button>
+      <button type="submit" class="btn btn-citron">✓ Enregistrer</button>
+    </div>
+  </form>`;
+
+  /* --- boutons à sélection unique --- */
+  $$('#c-duree [data-cle], #c-lieu [data-cle], #c-energie [data-cle]').forEach(b=>{
+    b.onclick = ()=>{
+      const cle = b.dataset.cle, v = b.dataset.v;
+      const nouveau = (String(f[cle])===String(v)) ? (cle==='duree'?null:'') : (cle==='duree'? nb(v) : v);
+      f[cle] = nouveau;
+      b.parentElement.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed', String(f[cle])===String(x.dataset.v)));
+    };
+  });
+  /* --- objectifs : sélection multiple --- */
+  $$('[data-obj]').forEach(b=>{
+    b.onclick = ()=>{
+      const o = b.dataset.obj;
+      f.objectif = f.objectif.includes(o) ? f.objectif.filter(x=>x!==o) : [...f.objectif, o];
+      b.setAttribute('aria-pressed', f.objectif.includes(o));
+    };
+  });
+  /* --- tranches d'âge --- */
+  $$('[data-age]').forEach(b=>{
+    b.onclick = ()=>{
+      const [a,z] = b.dataset.age.split('-').map(Number);
+      const deja = (f.ageMin===a && f.ageMax===z);
+      f.ageMin = deja?null:a; f.ageMax = deja?null:z;
+      $('#c-amin').value = f.ageMin??''; $('#c-amax').value = f.ageMax??'';
+      $$('[data-age]').forEach(x=>{
+        const [p,q] = x.dataset.age.split('-').map(Number);
+        x.setAttribute('aria-pressed', f.ageMin===p && f.ageMax===q);
+      });
+    };
+  });
+
+  /* --- listes modifiables (matériel, déroulé) --- */
+  function dessinerListe(cle, cible, numerotee){
+    const zone = $(cible);
+    zone.innerHTML = f[cle].map((v,i)=>`
+      <div class="rangee-liste">
+        ${numerotee?`<span class="numero">${i+1}</span>`:''}
+        <input class="saisie" data-l="${cle}" data-i="${i}" value="${esc(v)}">
+        <button type="button" class="sup" data-sup="${cle}" data-i="${i}" aria-label="Supprimer la ligne">✕</button>
+      </div>`).join('');
+    $$('[data-l]',zone).forEach(inp => inp.oninput = ()=>{ f[cle][+inp.dataset.i] = inp.value; });
+    $$('[data-sup]',zone).forEach(b => b.onclick = ()=>{ f[cle].splice(+b.dataset.i,1); dessinerListe(cle,cible,numerotee); });
+  }
+  function ajouterLigne(cle, cible, numerotee, valeur=''){
+    f[cle].push(valeur); dessinerListe(cle,cible,numerotee);
+    const champs = $$('[data-l="'+cle+'"]'); champs[champs.length-1]?.focus();
+  }
+  dessinerListe('materiel','#l-materiel',false);
+  dessinerListe('deroule','#l-deroule',true);
+  $('#add-materiel').onclick = ()=>ajouterLigne('materiel','#l-materiel',false);
+  $('#add-deroule').onclick  = ()=>ajouterLigne('deroule','#l-deroule',true);
+
+  /* --- suggestions de matériel tirées de vos autres fiches --- */
+  const dejaVu = [...new Set(fiches.flatMap(x=>x.materiel))]
+      .filter(Boolean).sort((a,b)=>a.localeCompare(b,'fr')).slice(0,24);
+  $('#sugg-materiel').innerHTML = dejaVu.length
+    ? `<span style="font-size:13px;color:var(--texte-doux);width:100%">Déjà utilisé ailleurs :</span>` +
+      dejaVu.map(m=>`<button type="button" class="sugg" data-add="${esc(m)}">＋ ${esc(m)}</button>`).join('')
+    : '';
+  $$('[data-add]').forEach(b => b.onclick = ()=>{
+    if(!f.materiel.includes(b.dataset.add)) ajouterLigne('materiel','#l-materiel',false,b.dataset.add);
+  });
+
+  /* --- photo du schéma --- */
+  function dessinerSchema(){
+    const z = $('#zone-schema');
+    z.innerHTML = f.schema
+      ? `<div class="schema" style="margin-bottom:9px"><img src="${f.schema}" alt="Aperçu du schéma"></div>
+         <button type="button" class="btn btn-mini btn-danger" id="sup-schema">🗑 Retirer l'image</button>`
+      : '';
+    const s = $('#sup-schema'); if(s) s.onclick = ()=>{ f.schema=''; dessinerSchema(); };
+  }
+  dessinerSchema();
+  $('#btn-photo').onclick = ()=>$('#c-photo').click();
+  $('#c-photo').onchange = async e=>{
+    const fichier = e.target.files[0]; if(!fichier) return;
+    toast('Traitement de l\'image…');
+    try{ f.schema = await compresserImage(fichier); dessinerSchema(); toast('Image ajoutée'); }
+    catch(err){ toast('Image impossible à lire'); }
+    e.target.value = '';
+  };
+
+  /* --- enregistrement --- */
+  $('#annuler').onclick = ()=>history.back();
+  $('#form').onsubmit = async ev=>{
+    ev.preventDefault();
+    f.nom       = $('#c-nom').value.trim();
+    f.resume    = $('#c-res').value.trim();
+    f.joueursMin= nb($('#c-jmin').value); f.joueursMax = nb($('#c-jmax').value);
+    f.ageMin    = nb($('#c-amin').value); f.ageMax     = nb($('#c-amax').value);
+    f.variantes = $('#c-var').value.trim();
+    f.securite  = $('#c-sec').value.trim();
+    f.notes     = $('#c-notes').value.trim();
+    f.derniereUtilisation = $('#c-date').value;
+    f.tags      = $('#c-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+    f.materiel  = f.materiel.map(x=>x.trim()).filter(Boolean);
+    f.deroule   = f.deroule.map(x=>x.trim()).filter(Boolean);
+
+    if(!f.nom){ toast('Il faut au moins un nom'); $('#c-nom').focus(); return; }
+    f.statut = estComplete(f) ? 'complet' : 'brouillon';
+
+    await enregistrer(f);
+    brouillonEnCours = null;
+    toast(f.statut==='brouillon' ? 'Enregistrée — à compléter plus tard' : 'Fiche enregistrée');
+    aller('#/a/'+f.id);
+  };
+}
+
+/* --------------------------------------------------------------------------
+   Réduction et compression de l'image, dans le navigateur.
+   Objectif : rester nettement sous la limite de 1 Mo par fiche de Firestore.
+   -------------------------------------------------------------------------- */
+const TAILLE_MAX_OCTETS = 600 * 1024;
+function compresserImage(fichier){
+  return new Promise((resolve,reject)=>{
+    const lecteur = new FileReader();
+    lecteur.onerror = reject;
+    lecteur.onload = ()=>{
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = ()=>{
+        const MAX = 1400;
+        let {width:w, height:h} = img;
+        if(w>MAX || h>MAX){ const r = Math.min(MAX/w, MAX/h); w = Math.round(w*r); h = Math.round(h*r); }
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+        // On baisse la qualité JPEG par paliers jusqu'à passer sous la limite.
+        let q = 0.82, sortie = c.toDataURL('image/jpeg', q);
+        while(sortie.length * 0.75 > TAILLE_MAX_OCTETS && q > 0.3){
+          q -= 0.08; sortie = c.toDataURL('image/jpeg', q);
+        }
+        resolve(sortie);
+      };
+      img.src = lecteur.result;
+    };
+    lecteur.readAsDataURL(fichier);
+  });
+}
+
+/* ==========================================================================
+   9. MODALES ET CONFIRMATION
+   ========================================================================== */
+function modale(titre, html, apres){
+  fermerModale();
+  const v = document.createElement('div'); v.className = 'voile'; v.id = 'voile';
+  v.innerHTML = `<div class="modale" role="dialog" aria-modal="true" aria-label="${esc(titre)}">
+     <h2>${esc(titre)}</h2><div id="modale-corps" style="margin-top:14px">${html}</div></div>`;
+  document.body.appendChild(v);
+  v.onclick = e=>{ if(e.target===v) fermerModale(); };
+  document.addEventListener('keydown', echap);
+  if(apres) apres($('#modale-corps',v));
+}
+function echap(e){ if(e.key==='Escape') fermerModale(); }
+function fermerModale(){
+  const v = $('#voile'); if(v) v.remove();
+  document.removeEventListener('keydown', echap);
+}
+function confirmer(titre, texte, action){
+  modale(titre, `<p style="color:var(--texte-doux);margin-top:0">${esc(texte)}</p>
+    <button class="btn btn-danger" id="ok-conf" style="justify-content:center">Oui, supprimer</button>
+    <button class="btn" id="non-conf" style="justify-content:center">Annuler</button>`,
+    b=>{ $('#ok-conf',b).onclick = ()=>{ fermerModale(); action(); };
+         $('#non-conf',b).onclick = fermerModale; });
+}
+
+/* ==========================================================================
+   10. RÉGLAGES, SAUVEGARDE ET RESTAURATION
+   ========================================================================== */
+function ouvrirReglages(){
+  const brouillons = fiches.filter(f=>f.statut==='brouillon').length;
+  modale('Réglages', `
+    <p style="color:var(--texte-doux);margin-top:0;font-size:14.5px">
+      <b class="chiffre">${fiches.length}</b> fiche(s) — dont <b class="chiffre">${brouillons}</b> à compléter.<br>
+      Mode : <b>${MODE==='firebase'?'synchronisé (Firebase)':'local à cet appareil'}</b>
+    </p>
+    <button class="btn" id="r-export">⬇ Télécharger une sauvegarde (JSON)</button>
+    <button class="btn" id="r-import">⬆ Restaurer depuis une sauvegarde</button>
+    <button class="btn" id="r-biblio">📚 Installer la bibliothèque de démarrage</button>
+    <button class="btn" id="r-theme">◐ Thème clair / sombre</button>
+    <button class="btn" id="r-oubli">🔒 Oublier le code d'accès sur cet appareil</button>
+    <input type="file" id="r-fichier" accept="application/json,.json" hidden>
+    <p style="font-size:12.5px;color:var(--texte-doux);margin-top:14px">
+      Conseil : téléchargez une sauvegarde de temps en temps et rangez-la avec vos documents.
+    </p>`, b=>{
+    $('#r-export',b).onclick = exporter;
+    $('#r-import',b).onclick = ()=>$('#r-fichier',b).click();
+    $('#r-fichier',b).onchange = e=>importer(e.target.files[0]);
+    $('#r-biblio',b).onclick = ()=>{ fermerModale(); installerBibliotheque(); };
+    $('#r-theme',b).onclick = basculerTheme;
+    $('#r-oubli',b).onclick = ()=>{ localStorage.removeItem('acces-ok'); location.reload(); };
+  });
+}
+function exporter(){
+  const donnees = { format:'fiches-animation', version:1, date:new Date().toISOString(), fiches };
+  const blob = new Blob([JSON.stringify(donnees,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fiches-animation-' + aujourdhui() + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Sauvegarde téléchargée');
+}
+function importer(fichier){
+  if(!fichier) return;
+  const lecteur = new FileReader();
+  lecteur.onload = async()=>{
+    let liste;
+    try{
+      const d = JSON.parse(lecteur.result);
+      liste = Array.isArray(d) ? d : d.fiches;
+      if(!Array.isArray(liste)) throw 0;
+    }catch{ toast('Ce fichier n\'est pas une sauvegarde valide'); return; }
+    fermerModale();
+    confirmer('Restaurer '+liste.length+' fiche(s) ?',
+      'Les fiches portant le même identifiant seront remplacées. Les autres seront conservées.',
+      async()=>{ toast('Restauration en cours…'); await enregistrerLot(liste); toast(liste.length+' fiche(s) restaurée(s)'); });
+  };
+  lecteur.readAsText(fichier);
+}
+async function installerBibliotheque(){
+  const existants = new Set(fiches.map(f=>f.nom.toLowerCase()));
+  const aPoser = BIBLIOTHEQUE.filter(j=>!existants.has(j.nom.toLowerCase()));
+  if(!aPoser.length){ toast('Les jeux de départ sont déjà là'); return; }
+  toast('Installation de '+aPoser.length+' jeux…');
+  await enregistrerLot(aPoser.map(j=>normaliser({...j, id:uid(), statut:'complet'})));
+  toast(aPoser.length+' jeux installés');
+}
+
+/* ==========================================================================
+   11. THÈME ET CODE D'ACCÈS
+   ========================================================================== */
+function appliquerTheme(t){
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem('theme', t);
+  document.querySelector('meta[name=theme-color]').content = (t==='sombre') ? '#0b120f' : '#14342b';
+}
+function basculerTheme(){
+  appliquerTheme(document.documentElement.dataset.theme==='sombre' ? 'clair' : 'sombre');
+}
+appliquerTheme(localStorage.getItem('theme')
+  || (matchMedia('(prefers-color-scheme: dark)').matches ? 'sombre' : 'clair'));
+
+function ouvrirApplication(){
+  $('#porte').classList.add('masque');
+  $('#app').classList.remove('masque');
+  $('#btn-theme').onclick    = basculerTheme;
+  $('#btn-reglages').onclick = ouvrirReglages;
+  $('#btn-retour').onclick   = ()=>history.back();
+  auChangement = ()=>{ if(location.hash.startsWith('#/e/')) return; router(); };
+  router();
+  demarrerBase();
+}
+if(!ACCES || localStorage.getItem('acces-ok')==='oui'){
+  ouvrirApplication();
+}else{
+  $('#porte').classList.remove('masque');
+  const essayer = ()=>{
+    if($('#porte-code').value.trim() === ACCES){
+      localStorage.setItem('acces-ok','oui'); ouvrirApplication();
+    }else{
+      $('#porte-err').textContent = 'Code incorrect';
+      $('#porte-code').value = ''; $('#porte-code').focus();
+    }
+  };
+  $('#porte-ok').onclick = essayer;
+  $('#porte-code').onkeydown = e=>{ if(e.key==='Enter') essayer(); };
+  $('#porte-code').focus();
+}
+
+/* ==========================================================================
+   12. BIBLIOTHÈQUE DE DÉMARRAGE — 40 jeux classiques d'animation
+   Modifiables comme n'importe quelle fiche une fois installés.
+   ========================================================================== */
+const BIBLIOTHEQUE = [
+{nom:"L'épervier",resume:"Traverser le terrain sans se faire attraper par l'épervier.",joueursMin:8,joueursMax:40,ageMin:6,ageMax:12,duree:20,lieu:"extérieur",energie:"défoulement",objectif:["défoulement","adresse"],materiel:["4 plots pour délimiter"],deroule:["Délimiter deux lignes de refuge face à face, tout le monde derrière une ligne.","Un joueur au centre est l'épervier ; il crie « Épervier, sortez ! ».","Tous traversent : ceux qui sont touchés deviennent éperviers.","On recommence jusqu'au dernier joueur libre, qui gagne."],variantes:"Les éperviers peuvent se donner la main pour former une chaîne.",securite:"Terrain plat, sans obstacle. Interdire de tirer sur les vêtements.",tags:["classique","course","sans matériel"]},
+{nom:"Le béret",resume:"Deux équipes numérotées, un foulard au centre : le premier qui le rapporte marque.",joueursMin:8,joueursMax:30,ageMin:7,ageMax:14,duree:20,lieu:"les deux",energie:"défoulement",objectif:["défoulement","adresse"],materiel:["1 foulard ou chasuble","2 plots"],deroule:["Former deux équipes assises face à face, à 10 mètres l'une de l'autre.","Numéroter chaque joueur ; les deux équipes ont les mêmes numéros.","Poser le foulard au milieu et appeler un numéro.","Les deux joueurs appelés courent : rapporter le foulard sans être touché marque 1 point.","Si on se fait toucher avec le foulard, c'est l'adversaire qui marque."],variantes:"Appeler deux numéros à la fois, ou faire des opérations de calcul à la place des numéros.",securite:"Prévoir un espace dégagé derrière les lignes.",tags:["classique","équipes","rapidité"]},
+{nom:"Poule – Renard – Vipère",resume:"Trois équipes qui se chassent en boucle, façon pierre-feuille-ciseaux géant.",joueursMin:12,joueursMax:45,ageMin:7,ageMax:14,duree:30,lieu:"extérieur",energie:"défoulement",objectif:["défoulement","coopération"],materiel:["3 jeux de foulards de couleur","Plots pour les 3 camps"],deroule:["Former trois équipes : poules, renards, vipères, chacune avec son camp.","La poule mange la vipère, la vipère mord le renard, le renard mange la poule.","Chacun sort chasser sa proie et ramène ses prisonniers dans son camp.","Un prisonnier change d'équipe et repart jouer.","La partie s'arrête quand une équipe a absorbé les autres."],variantes:"Ajouter des zones neutres où l'on ne peut pas être attrapé.",securite:"Bien délimiter le terrain et rappeler les règles de chasse avant de lancer.",tags:["grand jeu","classique","équipes"]},
+{nom:"La balle au prisonnier",resume:"Toucher les adversaires avec le ballon pour les envoyer en prison.",joueursMin:10,joueursMax:30,ageMin:7,ageMax:14,duree:25,lieu:"les deux",energie:"défoulement",objectif:["défoulement","adresse"],materiel:["1 ballon en mousse","Plots de délimitation"],deroule:["Tracer deux camps et deux prisons derrière les camps adverses.","Toucher un adversaire avec le ballon l'envoie en prison.","Une balle rattrapée en vol ne compte pas.","Un prisonnier qui touche un adversaire depuis la prison revient dans son camp.","L'équipe qui vide le camp adverse gagne."],variantes:"Ballon interdit au-dessus de la ceinture pour les plus jeunes.",securite:"Ballon en mousse obligatoire, jamais viser la tête.",tags:["ballon","équipes","classique"]},
+{nom:"La capture du drapeau",resume:"Aller voler le drapeau du camp adverse et le ramener chez soi.",joueursMin:12,joueursMax:40,ageMin:8,ageMax:15,duree:45,lieu:"extérieur",energie:"défoulement",objectif:["grand jeu","coopération","défoulement"],materiel:["2 drapeaux ou foulards","Foulards de couleur","Plots"],deroule:["Diviser le terrain en deux camps, un drapeau visible au fond de chacun.","Chez soi on est intouchable, chez l'adversaire on peut être touché.","Un joueur touché va en prison et attend qu'un coéquipier le délivre.","Ramener le drapeau adverse dans son camp fait gagner la manche."],variantes:"Ajouter des rôles (gardien, éclaireur, libérateur) pour structurer les équipes.",securite:"Repérer le terrain avant, interdire les zones dangereuses.",tags:["grand jeu","stratégie","équipes"]},
+{nom:"1, 2, 3, Soleil",resume:"Avancer vers le meneur sans jamais se faire surprendre en mouvement.",joueursMin:5,joueursMax:30,ageMin:3,ageMax:8,duree:10,lieu:"les deux",energie:"moyen",objectif:["adresse","défoulement"],materiel:[],deroule:["Le meneur se place face à un mur, les autres sur une ligne de départ.","Il dit « 1, 2, 3, Soleil ! » puis se retourne.","Ceux qui bougent encore repartent au départ.","Le premier à toucher le meneur prend sa place."],variantes:"Version silencieuse : le meneur compte dans sa tête.",securite:"Sol dégagé pour éviter les chutes lors des arrêts brusques.",tags:["classique","petits","sans matériel"]},
+{nom:"Chat perché",resume:"Un chat poursuit tout le monde ; on est sauvé en hauteur.",joueursMin:6,joueursMax:25,ageMin:5,ageMax:10,duree:15,lieu:"extérieur",energie:"défoulement",objectif:["défoulement"],materiel:[],deroule:["Désigner un chat.","Il poursuit les autres joueurs.","On est protégé en montant sur quelque chose de surélevé, 5 secondes maximum.","Le joueur touché devient le chat."],variantes:"Chat glacé : le joueur touché reste figé jusqu'à ce qu'un autre le délivre.",securite:"Choisir des perchoirs bas et stables, vérifiés à l'avance.",tags:["classique","course","sans matériel"]},
+{nom:"La queue du diable",resume:"Voler le foulard glissé dans la ceinture des autres.",joueursMin:6,joueursMax:25,ageMin:6,ageMax:12,duree:15,lieu:"les deux",energie:"défoulement",objectif:["défoulement","adresse"],materiel:["1 foulard par joueur"],deroule:["Chacun glisse un foulard dans sa ceinture, dans le dos, bien visible.","Au signal, tout le monde essaie de voler les foulards des autres.","On garde les foulards volés à la main.","Le joueur qui perd le sien sort du terrain ; le dernier avec son foulard gagne."],variantes:"En équipes : compter le total de foulards ramenés.",securite:"Foulard visible et non noué, pour éviter les tirages violents.",tags:["foulard","classique"]},
+{nom:"Le loup-garou",resume:"Un village doit démasquer les loups avant d'être dévoré.",joueursMin:8,joueursMax:20,ageMin:9,ageMax:17,duree:30,lieu:"intérieur",energie:"calme",objectif:["réflexion","confiance"],materiel:["Cartes de rôles"],deroule:["Distribuer les rôles en secret : loups, villageois, voyante, sorcière.","La nuit, tout le monde ferme les yeux ; les loups désignent une victime.","Le jour, le village débat et vote pour éliminer un suspect.","On alterne nuit et jour jusqu'à victoire des loups ou du village."],variantes:"Version courte sans rôles spéciaux pour les plus jeunes.",securite:"Veiller à ce que l'élimination ne se transforme pas en mise à l'écart réelle.",tags:["intérieur","ambiance","réflexion"]},
+{nom:"Le nœud humain",resume:"Se démêler en groupe sans jamais se lâcher les mains.",joueursMin:8,joueursMax:16,ageMin:8,ageMax:17,duree:15,lieu:"les deux",energie:"moyen",objectif:["coopération","confiance"],materiel:[],deroule:["Se mettre en cercle serré, bras tendus vers le centre.","Chacun attrape deux mains différentes, jamais celle d'un voisin direct.","Sans se lâcher, le groupe doit se démêler pour reformer un cercle."],variantes:"Interdire de parler pour corser la coopération.",securite:"Rappeler de ne jamais tirer fort sur les bras.",tags:["coopération","sans matériel"]},
+{nom:"Le prénom et le geste",resume:"Chacun dit son prénom avec un geste que tout le groupe reprend.",joueursMin:6,joueursMax:25,ageMin:5,ageMax:17,duree:10,lieu:"les deux",energie:"moyen",objectif:["brise-glace","prénoms"],materiel:[],deroule:["En cercle, le premier dit son prénom accompagné d'un geste.","Tout le groupe répète le prénom et le geste.","On continue tour à tour.","Pour finir, reprendre tous les prénoms et gestes dans l'ordre."],variantes:"Version cumulative : chacun répète tous les prénoms précédents.",securite:"Ne jamais forcer un enfant timide à faire un grand geste.",tags:["prénoms","début de séjour"]},
+{nom:"La toile d'araignée",resume:"Une pelote de laine tisse une toile entre les prénoms du groupe.",joueursMin:8,joueursMax:20,ageMin:6,ageMax:14,duree:15,lieu:"intérieur",energie:"calme",objectif:["brise-glace","prénoms","coopération"],materiel:["1 pelote de laine"],deroule:["En cercle, le premier garde le fil et dit son prénom plus une chose qu'il aime.","Il lance la pelote à quelqu'un d'autre en gardant le fil tendu.","On continue jusqu'à ce que tout le monde tienne le fil.","Observer la toile, puis la défaire en refaisant le chemin à l'envers."],variantes:"Refaire le chemin inverse en redonnant le prénom de la personne.",securite:"Fil tendu au niveau de la taille, jamais autour du cou.",tags:["prénoms","calme","début de séjour"]},
+{nom:"Le portrait chinois",resume:"Deviner qui se cache derrière trois indices lus à voix haute.",joueursMin:6,joueursMax:25,ageMin:8,ageMax:17,duree:20,lieu:"intérieur",energie:"calme",objectif:["brise-glace","créativité"],materiel:["Papiers","Crayons","1 boîte"],deroule:["Chacun écrit trois choses sur lui sans se nommer.","Plier les papiers et les mettre dans la boîte.","Lire un papier à voix haute, le groupe devine de qui il s'agit.","Continuer jusqu'à épuisement des papiers."],variantes:"Version « si j'étais un animal / une couleur / un plat ».",securite:"Rappeler qu'on n'écrit rien de moqueur sur soi ni sur les autres.",tags:["prénoms","calme","écrit"]},
+{nom:"Le facteur n'est pas passé",resume:"Un mouchoir déposé dans le dos, une course autour du cercle.",joueursMin:8,joueursMax:25,ageMin:5,ageMax:10,duree:15,lieu:"les deux",energie:"moyen",objectif:["défoulement","adresse"],materiel:["1 mouchoir ou foulard"],deroule:["Tout le monde assis en cercle, un joueur tourne autour avec le mouchoir.","Le groupe chante « Le facteur n'est pas passé… ».","Le facteur dépose discrètement le mouchoir derrière quelqu'un.","Celui-ci doit s'en apercevoir et le poursuivre pour reprendre sa place."],variantes:"Deux facteurs en même temps pour les grands groupes.",securite:"Cercle assez large, tourner toujours dans le même sens.",tags:["classique","cercle","petits"]},
+{nom:"Le téléphone arabe",resume:"Une phrase chuchotée qui se déforme de bouche à oreille.",joueursMin:6,joueursMax:25,ageMin:5,ageMax:12,duree:10,lieu:"les deux",energie:"calme",objectif:["retour au calme","brise-glace"],materiel:[],deroule:["S'asseoir en ligne ou en cercle.","Chuchoter une phrase à l'oreille de son voisin, une seule fois.","La phrase circule jusqu'au dernier joueur.","Le dernier dit la phrase à voix haute et on compare avec l'originale."],variantes:"Version gestuelle : transmettre un mime au lieu d'une phrase.",securite:"Aucun point particulier.",tags:["calme","sans matériel","classique"]},
+{nom:"Jacques a dit",resume:"N'obéir qu'aux ordres précédés de la formule magique.",joueursMin:5,joueursMax:30,ageMin:4,ageMax:9,duree:10,lieu:"les deux",energie:"moyen",objectif:["retour au calme","adresse"],materiel:[],deroule:["Le meneur donne des consignes au groupe.","On n'exécute que celles commençant par « Jacques a dit ».","Celui qui se trompe s'assoit ou fait un gage.","Le dernier debout devient meneur."],variantes:"Accélérer le rythme progressivement pour corser le jeu.",securite:"Éviter les consignes acrobatiques.",tags:["classique","petits","sans matériel"]},
+{nom:"Le mime en chaîne",resume:"Un mime transmis en silence d'un joueur au suivant.",joueursMin:6,joueursMax:16,ageMin:7,ageMax:14,duree:20,lieu:"intérieur",energie:"moyen",objectif:["créativité","brise-glace"],materiel:["Cartes de mots à mimer"],deroule:["Tout le monde sort sauf le premier joueur.","Il découvre le mot et le mime au deuxième qui entre.","Le deuxième mime ce qu'il a compris au troisième, et ainsi de suite.","Le dernier annonce ce qu'il croit avoir vu, on compare avec le mot de départ."],variantes:"Deux équipes en parallèle, on compare les résultats.",securite:"Aucun point particulier.",tags:["intérieur","créativité","rires"]},
+{nom:"Les statues musicales",resume:"Danser tant que la musique joue, se figer dès qu'elle s'arrête.",joueursMin:6,joueursMax:30,ageMin:4,ageMax:11,duree:15,lieu:"intérieur",energie:"défoulement",objectif:["défoulement"],materiel:["Enceinte","Téléphone avec musique"],deroule:["Lancer la musique, tout le monde danse.","Couper la musique : chacun se fige immédiatement.","Ceux qui bougent s'assoient sur le côté et deviennent juges.","Le dernier joueur debout gagne."],variantes:"Statue imposée : animal, métier, émotion.",securite:"Dégager l'espace, prévenir des arrêts brusques.",tags:["musique","intérieur","défoulement"]},
+{nom:"Douaniers et contrebandiers",resume:"Faire passer un objet caché sous le nez des douaniers.",joueursMin:10,joueursMax:30,ageMin:9,ageMax:15,duree:30,lieu:"extérieur",energie:"moyen",objectif:["grand jeu","réflexion"],materiel:["Petits objets à transporter","Plots"],deroule:["Délimiter une frontière avec un poste de douane à traverser obligatoirement.","Les contrebandiers cachent ou non un objet sur eux.","Les douaniers fouillent symboliquement et décident de laisser passer ou non.","Un objet passé rapporte des points, une erreur de douanier en fait perdre."],variantes:"Ajouter de la fausse monnaie et des pots-de-vin pour les grands.",securite:"Fouille toujours symbolique : jamais de contact physique.",tags:["grand jeu","stratégie"]},
+{nom:"Le morpion géant",resume:"Un morpion sur le sol, atteint en courant par relais.",joueursMin:6,joueursMax:20,ageMin:6,ageMax:12,duree:15,lieu:"les deux",energie:"moyen",objectif:["réflexion","défoulement"],materiel:["9 cerceaux ou craie","Foulards de 2 couleurs"],deroule:["Tracer une grille de 3 sur 3 à 15 mètres des équipes.","Chaque joueur part avec un foulard de sa couleur et le pose dans une case.","Quand les trois foulards sont posés, on peut en déplacer un.","La première équipe alignée gagne la manche."],variantes:"Version calcul : répondre à une question avant de poser.",securite:"Un couloir de course par équipe pour éviter les collisions.",tags:["relais","réflexion"]},
+{nom:"Le relais des déménageurs",resume:"Transporter le plus d'objets possible d'un point à l'autre.",joueursMin:8,joueursMax:30,ageMin:5,ageMax:12,duree:15,lieu:"les deux",energie:"défoulement",objectif:["défoulement","coopération"],materiel:["Beaucoup de petits objets","2 caisses"],deroule:["Poser un tas d'objets au centre, une caisse par équipe.","Au signal, un joueur par équipe part chercher un seul objet.","Il le dépose dans sa caisse et tape la main du suivant.","L'équipe avec le plus d'objets à la fin gagne."],variantes:"Transporter l'objet sur le dos de la main ou entre les genoux.",securite:"Objets non coupants, couloirs de course séparés.",tags:["relais","équipes"]},
+{nom:"La course en sac",resume:"Avancer par bonds, les jambes dans un sac.",joueursMin:4,joueursMax:20,ageMin:5,ageMax:12,duree:10,lieu:"extérieur",energie:"défoulement",objectif:["défoulement","adresse"],materiel:["1 sac en toile par joueur"],deroule:["Aligner les joueurs sur la ligne de départ, jambes dans le sac.","Au signal, avancer par bonds jusqu'à la ligne d'arrivée.","Prévoir plusieurs manches ou un relais par équipes."],variantes:"Relais aller-retour avec passage de sac.",securite:"Sol souple, herbe de préférence. Espacer largement les couloirs.",tags:["kermesse","extérieur"]},
+{nom:"Le tir à la corde",resume:"Deux équipes, une corde, un repère à faire franchir.",joueursMin:8,joueursMax:30,ageMin:8,ageMax:17,duree:10,lieu:"extérieur",energie:"défoulement",objectif:["défoulement","coopération"],materiel:["1 grosse corde","1 foulard repère"],deroule:["Nouer un foulard au milieu de la corde et tracer une ligne au sol.","Répartir les équipes de force équivalente de chaque côté.","Au signal, tirer jusqu'à faire passer le foulard au-delà de la ligne."],variantes:"Deux manches avec changement de côté.",securite:"Interdire d'enrouler la corde autour du corps ou des mains. Éviter le sol glissant.",tags:["kermesse","force","équipes"]},
+{nom:"La salade de fruits",resume:"Changer de place quand son fruit est appelé.",joueursMin:8,joueursMax:30,ageMin:5,ageMax:11,duree:15,lieu:"intérieur",energie:"moyen",objectif:["brise-glace","défoulement"],materiel:["1 chaise par joueur sauf une"],deroule:["Asseoir tout le monde en cercle, un joueur debout au centre.","Attribuer à chacun un fruit parmi trois ou quatre.","Le meneur appelle un fruit : les concernés changent de place.","Le joueur du centre en profite pour s'asseoir ; le nouveau debout prend le relais.","« Salade de fruits ! » fait tout le monde changer."],variantes:"Remplacer les fruits par des caractéristiques : « ceux qui aiment le chocolat ».",securite:"Écarter les chaises, interdire de courir en travers du cercle.",tags:["cercle","classique","intérieur"]},
+{nom:"Le dragon qui dort",resume:"Voler le trésor d'un dragon qui écoute les yeux bandés.",joueursMin:6,joueursMax:20,ageMin:5,ageMax:11,duree:15,lieu:"intérieur",energie:"calme",objectif:["retour au calme","adresse"],materiel:["1 bandeau","1 objet trousseau qui fait du bruit"],deroule:["Un joueur assis les yeux bandés garde le trésor posé devant lui.","Le groupe est assis en cercle à quelques mètres.","Le meneur désigne un voleur en silence, qui s'approche sans bruit.","Si le dragon pointe la bonne direction, le voleur retourne s'asseoir."],variantes:"Deux voleurs en même temps.",securite:"Bien vérifier que le bandeau reste confortable.",tags:["calme","silence","intérieur"]},
+{nom:"La chasse au trésor photo",resume:"Retrouver des lieux à partir de photos prises en gros plan.",joueursMin:6,joueursMax:30,ageMin:8,ageMax:15,duree:45,lieu:"extérieur",energie:"moyen",objectif:["grand jeu","coopération","réflexion"],materiel:["Photos imprimées de détails du lieu","Feuille de route par équipe"],deroule:["Photographier une dizaine de détails du site en gros plan.","Distribuer une série de photos par équipe.","Chaque équipe retrouve les lieux et y récupère un indice.","Les indices assemblés donnent l'emplacement du trésor final."],variantes:"Ajouter une épreuve à réussir à chaque lieu.",securite:"Délimiter clairement le périmètre autorisé, un adulte par secteur.",tags:["grand jeu","extérieur","exploration"]},
+{nom:"Le cluedo géant",resume:"Une enquête grandeur nature : qui, où, avec quoi.",joueursMin:10,joueursMax:30,ageMin:9,ageMax:15,duree:90,lieu:"les deux",energie:"moyen",objectif:["grand jeu","réflexion","coopération"],materiel:["Cartes personnages","Cartes indices","Costumes simples"],deroule:["Les animateurs incarnent des personnages répartis sur le site.","Les équipes les interrogent pour obtenir des indices, parfois contre une épreuve.","Chaque indice élimine un suspect, un lieu ou une arme.","La première équipe qui donne la bonne solution complète gagne."],variantes:"Ajouter un faux témoin qui donne un indice erroné.",securite:"Prévoir un plan du site et des zones interdites clairement annoncées.",tags:["grand jeu","enquête","longue durée"]},
+{nom:"Le parcours des épreuves",resume:"Un circuit d'ateliers courts à enchaîner en équipe.",joueursMin:12,joueursMax:40,ageMin:7,ageMax:15,duree:60,lieu:"extérieur",energie:"défoulement",objectif:["grand jeu","coopération","adresse"],materiel:["Matériel varié par atelier","Feuille de score par équipe"],deroule:["Installer six à huit ateliers courts autour du terrain.","Répartir les équipes, une par atelier au départ.","Chaque atelier dure cinq minutes, puis on tourne au signal.","Le total des points désigne l'équipe gagnante."],variantes:"Ateliers à thème : pirates, cirque, olympiades.",securite:"Un animateur par atelier, matériel vérifié avant le début.",tags:["grand jeu","olympiades","équipes"]},
+{nom:"Le jeu des ambassadeurs",resume:"Faire deviner des mots en courant les chercher au loin.",joueursMin:8,joueursMax:30,ageMin:8,ageMax:15,duree:25,lieu:"les deux",energie:"défoulement",objectif:["défoulement","créativité","coopération"],materiel:["Papiers avec des mots","1 boîte par équipe"],deroule:["Placer une réserve de mots à 20 mètres des équipes assises.","Un joueur va lire un mot, revient et le fait deviner sans le prononcer.","Dès qu'il est deviné, un autre joueur part chercher le mot suivant.","La première équipe à vider sa réserve gagne."],variantes:"Trois manches : parler, mimer, puis un seul mot autorisé.",securite:"Couloirs de course dégagés.",tags:["équipes","rires","relais"]},
+{nom:"Le petit bac",resume:"Trouver un mot par catégorie commençant par la lettre tirée.",joueursMin:3,joueursMax:20,ageMin:8,ageMax:15,duree:20,lieu:"intérieur",energie:"calme",objectif:["réflexion","retour au calme"],materiel:["Feuilles","Crayons"],deroule:["Choisir ensemble cinq ou six catégories et les écrire en colonnes.","Tirer une lettre au hasard.","Chacun remplit ses colonnes le plus vite possible.","Le premier qui a tout rempli dit stop ; on compte les points."],variantes:"Catégories liées au séjour : prénom d'animateur, lieu du centre, activité.",securite:"Aucun point particulier.",tags:["calme","écrit","pluie"]},
+{nom:"Le dessin dos à dos",resume:"Reproduire un dessin uniquement à partir d'une description orale.",joueursMin:4,joueursMax:24,ageMin:8,ageMax:15,duree:20,lieu:"intérieur",energie:"calme",objectif:["coopération","créativité","réflexion"],materiel:["Feuilles","Crayons","Modèles de dessins simples"],deroule:["Former des binômes assis dos à dos.","L'un reçoit un dessin simple, l'autre une feuille blanche.","Le premier décrit sans nommer l'objet, le second dessine.","Comparer les résultats, puis inverser les rôles."],variantes:"Interdire les questions pour la première manche.",securite:"Aucun point particulier.",tags:["calme","coopération","pluie"]},
+{nom:"Le massage-histoire",resume:"Une histoire racontée pendant qu'on la dessine dans le dos du voisin.",joueursMin:6,joueursMax:24,ageMin:5,ageMax:11,duree:15,lieu:"intérieur",energie:"calme",objectif:["retour au calme","confiance"],materiel:["Tapis ou coussins"],deroule:["S'asseoir en file indienne, chacun face au dos de son voisin.","Le meneur raconte une histoire lente : la pluie, le vent, le soleil.","Chacun traduit l'histoire en gestes doux sur le dos de son voisin.","Se retourner à mi-parcours pour inverser."],variantes:"Version avec balles souples à faire rouler dans le dos.",securite:"Toujours demander l'accord de chacun ; proposer une alternative sans contact.",tags:["calme","fin de journée","sieste"]},
+{nom:"La minute",resume:"Estimer une minute exactement, les yeux fermés.",joueursMin:3,joueursMax:30,ageMin:6,ageMax:14,duree:5,lieu:"les deux",energie:"calme",objectif:["retour au calme"],materiel:["1 chronomètre"],deroule:["Tout le monde s'assoit et ferme les yeux.","Au top, chacun compte une minute dans sa tête.","On se lève quand on pense y être ; le meneur note l'ordre.","Le plus proche de soixante secondes gagne."],variantes:"En équipes : se lever tous ensemble au bon moment.",securite:"Aucun point particulier.",tags:["calme","transition","sans matériel"]},
+{nom:"La météo intérieure",resume:"Chacun dit comment il se sent avec une image de météo.",joueursMin:4,joueursMax:20,ageMin:6,ageMax:17,duree:10,lieu:"intérieur",energie:"calme",objectif:["retour au calme","confiance"],materiel:["1 objet à faire circuler"],deroule:["S'asseoir en cercle avec un objet qui donne la parole.","Celui qui le tient dit sa météo du jour : soleil, nuage, orage.","Il peut expliquer ou simplement passer l'objet.","Faire un tour complet sans commentaire du groupe."],variantes:"Le matin pour lancer la journée, le soir pour clore.",securite:"Le droit de passer son tour doit être clairement énoncé.",tags:["calme","parole","rituel"]},
+{nom:"Le yoga des animaux",resume:"Enchaîner des postures simples nommées par des animaux.",joueursMin:3,joueursMax:25,ageMin:4,ageMax:10,duree:15,lieu:"intérieur",energie:"calme",objectif:["retour au calme","créativité"],materiel:["Tapis"],deroule:["S'installer chacun sur son tapis, debout.","Proposer une posture animale simple : le chat, le chien, l'arbre, la grenouille.","Tenir quelques respirations puis passer à la suivante.","Finir allongé pour deux minutes de calme."],variantes:"Laisser les enfants inventer leur posture et la nommer.",securite:"Jamais de posture forcée, adapter à chacun.",tags:["calme","sieste","intérieur"]},
+{nom:"La bataille navale humaine",resume:"Une grille au sol, deux équipes qui se tirent dessus au ballon.",joueursMin:10,joueursMax:24,ageMin:9,ageMax:15,duree:30,lieu:"les deux",energie:"moyen",objectif:["réflexion","coopération","adresse"],materiel:["Craie ou cerceaux","Ballons en mousse","1 drap séparateur"],deroule:["Tracer deux grilles identiques séparées par un drap tendu.","Chaque équipe place ses joueurs sur des cases secrètes.","À tour de rôle, annoncer une case ; le joueur qui s'y trouve est touché.","La première équipe à couler tous les adversaires gagne."],variantes:"Le joueur touché peut être délivré par un coéquipier.",securite:"Bien fixer le drap séparateur.",tags:["stratégie","équipes","original"]},
+{nom:"Le jeu du silence",resume:"Tenir le plus longtemps possible sans un bruit.",joueursMin:4,joueursMax:30,ageMin:4,ageMax:11,duree:5,lieu:"les deux",energie:"calme",objectif:["retour au calme"],materiel:[],deroule:["Tout le monde s'assoit confortablement.","Au signal, plus un bruit ni un mouvement.","Écouter et retenir les sons entendus.","À la fin, chacun nomme un son qu'il a repéré."],variantes:"Version dehors : compter les sons de la nature.",securite:"Aucun point particulier.",tags:["calme","transition","sans matériel"]},
+{nom:"Le ballon prisonnier assis",resume:"Version calme du prisonnier : on joue assis, tout le monde reste dans le jeu.",joueursMin:8,joueursMax:24,ageMin:6,ageMax:12,duree:20,lieu:"intérieur",energie:"moyen",objectif:["adresse","coopération"],materiel:["1 ballon en mousse"],deroule:["Tout le monde assis en dispersion dans la salle.","On fait rouler le ballon pour toucher les jambes des autres.","Le joueur touché s'assoit jambes croisées mais continue à lancer.","Il se libère dès qu'il touche quelqu'un à son tour."],variantes:"Deux ballons pour accélérer le rythme.",securite:"Ballon roulé au sol uniquement, jamais lancé en l'air.",tags:["intérieur","pluie","ballon"]},
+{nom:"Les chaises coopératives",resume:"Comme les chaises musicales, mais personne n'est éliminé.",joueursMin:8,joueursMax:24,ageMin:6,ageMax:14,duree:15,lieu:"intérieur",energie:"moyen",objectif:["coopération","défoulement"],materiel:["1 chaise par joueur","Enceinte"],deroule:["Aligner les chaises dos à dos, une par joueur.","À l'arrêt de la musique, chacun monte sur une chaise.","Retirer une chaise à chaque tour, mais personne ne sort.","Le groupe doit tenir entier sur les chaises restantes."],variantes:"Remplacer les chaises par des tapis ou des cerceaux au sol.",securite:"Chaises stables ; version au sol avec cerceaux pour les plus jeunes.",tags:["coopération","musique","intérieur"]},
+{nom:"Le killer au foulard",resume:"Un tueur secret élimine les joueurs d'un simple clin d'œil.",joueursMin:8,joueursMax:25,ageMin:10,ageMax:17,duree:20,lieu:"les deux",energie:"calme",objectif:["réflexion","brise-glace"],materiel:["Cartes ou papiers"],deroule:["Distribuer un papier à chacun ; un seul porte une croix, c'est le tueur.","Tout le monde circule et se regarde dans les yeux.","Le tueur élimine en faisant discrètement un clin d'œil.","Le joueur éliminé compte jusqu'à cinq puis s'assoit.","Un joueur qui pense connaître le tueur peut l'accuser, avec un témoin."],variantes:"Deux tueurs pour les grands groupes.",securite:"Rappeler que l'élimination est symbolique et rapide.",tags:["ambiance","observation"]},
+{nom:"La rivière aux crocodiles",resume:"Traverser une zone interdite avec trop peu de supports.",joueursMin:6,joueursMax:20,ageMin:7,ageMax:14,duree:25,lieu:"les deux",energie:"moyen",objectif:["coopération","réflexion"],materiel:["Tapis ou planches en nombre limité","Plots"],deroule:["Délimiter une rivière large de plusieurs mètres.","Donner à l'équipe moins de supports que de joueurs.","Toucher le sol de la rivière fait repartir toute l'équipe du départ.","L'équipe gagne quand tous ses membres ont traversé."],variantes:"Un support laissé sans contact est confisqué.",securite:"Supports antidérapants, animateur à proximité.",tags:["coopération","défi","classique"]},
+{nom:"Le béret des couleurs",resume:"Variante du béret où l'on appelle des couleurs au lieu des numéros.",joueursMin:8,joueursMax:24,ageMin:5,ageMax:9,duree:15,lieu:"les deux",energie:"défoulement",objectif:["défoulement","adresse"],materiel:["Foulards de plusieurs couleurs","1 objet central"],deroule:["Attribuer une couleur à chaque joueur, la même dans les deux équipes.","Poser l'objet au centre entre les deux lignes.","Appeler une couleur : les deux joueurs concernés courent.","Rapporter l'objet chez soi sans être touché rapporte un point."],variantes:"Appeler deux couleurs à la fois.",securite:"Espace dégagé derrière chaque ligne.",tags:["petits","couleurs","équipes"]},
+{nom:"Le loup et l'agneau",resume:"Une file de joueurs protège le dernier de la ligne.",joueursMin:8,joueursMax:20,ageMin:5,ageMax:10,duree:10,lieu:"extérieur",energie:"défoulement",objectif:["coopération","défoulement"],materiel:[],deroule:["Former une file : chacun tient la taille du joueur devant lui.","Le premier de la file est la mère, le dernier est l'agneau.","Un joueur extérieur, le loup, tente de toucher l'agneau.","La file se déplace ensemble pour l'en empêcher, sans jamais se rompre."],variantes:"Deux files et deux loups pour les grands groupes.",securite:"Terrain souple, prévenir des risques de chute en chaîne.",tags:["coopération","classique","extérieur"]},
+{nom:"Les olympiades décalées",resume:"Des épreuves absurdes qui mettent tout le monde à égalité.",joueursMin:10,joueursMax:40,ageMin:6,ageMax:15,duree:60,lieu:"extérieur",energie:"moyen",objectif:["grand jeu","coopération","créativité"],materiel:["Cuillères","Œufs en plastique","Ballons de baudruche","Chronomètre","Feuille de score"],deroule:["Préparer six épreuves courtes et volontairement inhabituelles.","Répartir en équipes mélangeant les âges.","Chaque épreuve rapporte des points, y compris pour la participation.","Finir par un classement et un temps de célébration collectif."],variantes:"Laisser chaque équipe inventer une épreuve pour les autres.",securite:"Vérifier chaque atelier avant le lancement.",tags:["grand jeu","kermesse","équipes"]},
+{nom:"Le fil rouge de la semaine",resume:"Une histoire à épisodes qui relie toutes les activités du séjour.",joueursMin:8,joueursMax:40,ageMin:6,ageMax:14,duree:30,lieu:"les deux",energie:"moyen",objectif:["grand jeu","créativité","coopération"],materiel:["Décor simple","Accessoires de costume","Carnet de bord"],deroule:["Lancer le premier jour par une saynète qui pose une énigme.","Chaque activité de la semaine fait gagner un morceau de la solution.","Un court épisode relance l'intrigue chaque matin.","Le dernier jour, un grand jeu final résout l'histoire."],variantes:"Laisser les enfants écrire eux-mêmes l'épisode du lendemain.",securite:"Ne pas installer de suspense angoissant pour les plus jeunes.",tags:["grand jeu","séjour","imaginaire"]}
+];
+</script>
+</body>
+</html>
