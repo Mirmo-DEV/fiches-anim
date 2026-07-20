@@ -67,42 +67,45 @@
 <style>
 /* ============================ THÈME ET COULEURS ============================ */
 :root{
-  --vert-profond:#14342b;
-  --vert-profond-2:#1d4a3c;
-  --citron:#c3f04a;
-  --citron-sombre:#9bd42a;
+  --bleu-profond:#0d2c58;
+  --bleu-profond-2:#1c5fc7;
+  --degrade-bleu:linear-gradient(135deg,var(--bleu-profond) 0%,var(--bleu-profond-2) 100%);
+  --jaune:#ffc93c;
+  --jaune-sombre:#e6a800;
   --bleu:#2f7df6;
   --bleu-clair:#e6efff;
 
   --fond:#f6f7f2;
   --fond-2:#ffffff;
   --carte:#ffffff;
-  --texte:#152019;
-  --texte-doux:#5c6b61;
-  --bord:#e0e5dc;
-  --ombre:0 1px 2px rgba(20,52,43,.06), 0 6px 18px rgba(20,52,43,.07);
-  --ombre-forte:0 10px 40px rgba(20,52,43,.18);
+  --texte:#141c26;
+  --texte-doux:#5c6672;
+  --bord:#dfe3e8;
+  --ombre:0 1px 2px rgba(13,44,88,.06), 0 6px 18px rgba(13,44,88,.07);
+  --ombre-forte:0 10px 40px rgba(13,44,88,.18);
   --r:16px;
   --r-s:11px;
-  --entete:var(--vert-profond);
-  --sur-entete:#eefbe0;
+  --entete:var(--degrade-bleu);
+  --sur-entete:#eaf2ff;
 
   --police-titre:"Fraunces",Georgia,"Times New Roman",serif;
   --police-texte:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --police-chiffre:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
 }
 html[data-theme="sombre"]{
-  --fond:#0f1613;
-  --fond-2:#16211c;
-  --carte:#18241e;
-  --texte:#e9f0e9;
-  --texte-doux:#9db0a4;
-  --bord:#2a3a32;
+  --fond:#0e1420;
+  --fond-2:#151d2c;
+  --carte:#171f2e;
+  --texte:#e8edf5;
+  --texte-doux:#93a1b5;
+  --bord:#28344a;
+  --bleu-profond:#081c3b;
+  --bleu-profond-2:#144a99;
   --bleu-clair:#16283f;
   --ombre:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
   --ombre-forte:0 10px 40px rgba(0,0,0,.6);
-  --entete:#0b120f;
-  --sur-entete:#d7f0b8;
+  --entete:var(--degrade-bleu);
+  --sur-entete:#dce9ff;
 }
 
 *{box-sizing:border-box}
