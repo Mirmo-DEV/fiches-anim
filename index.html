@@ -34,7 +34,7 @@
                         Exemple :  const CODE_ACCES = '';
      ------------------------------------------------------------------ */
 
-  const CODE_ACCES = 'Mirmo';
+  const CODE_ACCES = 'anim2026';
 
 
   /* ------------------------------------------------------------------
@@ -498,6 +498,15 @@ async function supprimer(id){
 async function enregistrerLot(liste){
   for(const f of liste) await enregistrer(normaliser(f));
 }
+/* Si la base refuse une opération, on le dit clairement plutôt que de ne rien
+   faire. Le cas le plus courant : les règles de sécurité Firestore. */
+window.addEventListener('unhandledrejection', e=>{
+  const m = String(e.reason?.message || e.reason || '');
+  toast(m.includes('permission') || m.includes('insufficient')
+    ? 'Refusé par la base : vérifiez les règles Firestore'
+    : 'Une erreur est survenue : ' + m.slice(0,60));
+});
+
 function etat(msg){
   const b = $('#bandeau-etat');
   if(!msg){ b.hidden = true; return; }
