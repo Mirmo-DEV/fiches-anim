@@ -412,17 +412,44 @@ textarea.saisie{min-height:90px;resize:vertical;line-height:1.5}
 
 /* ============================ IMPRESSION A4 ============================ */
 @media print{
-  header.top,.flottant,.actions,.bandeau-etat,#toast,.no-print{display:none!important}
+  /* On imprime toujours en clair, même si l'écran est en thème sombre.
+     Sans ça les encadrés sortaient en aplat noir, et le texte clair devenait
+     invisible sur le papier blanc. On réécrit donc les couleurs à la source. */
+  :root, html[data-theme="sombre"]{
+    --fond:#fff; --fond-2:#fff; --carte:#fff;
+    --texte:#000; --texte-doux:#333;
+    --bord:#bbb; --bleu-clair:#fff;
+    --ombre:none; --ombre-forte:none;
+  }
+
+  header.top,.flottant,.actions,.actions-rapides,.bandeau-etat,#toast,.no-print{display:none!important}
   body{background:#fff;color:#000;font-size:11.5pt}
   .conteneur{max-width:100%;padding:0}
   .fiche{padding:0}
-  .fiche .titre{font-size:24pt}
+  .fiche .titre{font-size:24pt;color:#000}
+  .fiche .res{color:#333}
   .bandeau{border:1px solid #999;background:#999}
   .bandeau div{background:#fff}
-  .carte,.encadre{border:1px solid #bbb;box-shadow:none;break-inside:avoid}
+  .bandeau .lab{color:#444}
+  .carte,.encadre{border:1px solid #bbb;box-shadow:none;break-inside:avoid;background:#fff;color:#000}
   .bloc{break-inside:avoid}
-  .bloc h2{color:#000;border-bottom:1px solid #ccc;padding-bottom:3px}
+  /* Les titres de section suivaient la couleur du thème et sortaient en bleu
+     pâle, parfois illisible. Le !important passe devant la règle de thème,
+     qui est plus spécifique. */
+  .bloc h2{color:#000!important;border-bottom:1px solid #ccc;padding-bottom:3px}
+  .d,.d.tag{border:1px solid #bbb;background:#fff;color:#000}
   .etapes li::before{background:#000;color:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+  /* La photo occupait la moitié de la feuille et repoussait les variantes et
+     les points de vigilance sur une deuxième page. Bridée en hauteur, la fiche
+     tient sur une seule page. */
+  .schema{text-align:center;break-inside:avoid}
+  .schema img{
+    max-height:80mm;width:auto;max-width:100%;
+    object-fit:contain;border:1px solid #bbb;
+    margin:0 auto;   /* l'image est en display:block, text-align ne suffit pas */
+  }
+
   @page{margin:16mm}
 }
 </style>
