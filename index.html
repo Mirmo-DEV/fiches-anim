@@ -238,6 +238,13 @@ select.trou{appearance:none;-webkit-appearance:none;padding-right:12px}
   width:100%;padding:13px 15px;border-radius:var(--r-s);border:1px solid var(--bord);
   background:var(--carte);font-size:16px;
 }
+/* Les filtres rapides débordent à droite. Un dégradé sur le bord indique
+   qu'il en reste : sans lui, « À compléter » n'est jamais découvert. */
+.zone-rapides{position:relative}
+.zone-rapides::after{
+  content:'';position:absolute;top:0;right:0;bottom:6px;width:34px;pointer-events:none;
+  background:linear-gradient(to right,transparent,var(--fond));
+}
 .rapides{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .rapides::-webkit-scrollbar{display:none}
 .puce{
@@ -288,7 +295,11 @@ html[data-theme="sombre"] .etiq-brouillon{background:#3d2f13;color:#f0c46e}
   background:var(--jaune);color:#26200a;border:0;border-radius:999px;
   padding:15px 22px;font-weight:700;font-size:16px;box-shadow:var(--ombre-forte);
   display:inline-flex;gap:8px;align-items:center;
+  /* Il recouvrait en permanence le texte d'une carte. Il s'efface quand on
+     descend lire, et revient dès qu'on remonte. */
+  transition:transform .22s ease, opacity .22s ease;
 }
+.flottant.cachee{transform:translateY(130%);opacity:0;pointer-events:none}
 
 /* ============================ FICHE DÉTAIL ============================ */
 .fiche{padding-bottom:110px}
@@ -627,7 +638,7 @@ let etaitHorsLigne = null;
 function horsLigne(oui){
   if(oui === etaitHorsLigne) return;
   etaitHorsLigne = oui;
-  etat(oui ? '📴 Hors ligne — vos modifications partiront au retour du réseau' : '');
+  etat(oui ? '📴 Hors ligne — envoi au retour du réseau' : '');
 }
 
 /* ==========================================================================
@@ -814,9 +825,11 @@ function vueListe(){
         min.
       </div>
     </div>
-    <input class="recherche" id="rech" type="search" placeholder="Rechercher un mot (nom, matériel, étape…)" value="${esc(filtres.texte)}">
-    <div class="rapides" style="margin-top:10px">
-      ${rapides.map(([v,l])=>`<button class="puce" data-rapide="${v}" aria-pressed="${filtres.rapide===v}">${l}</button>`).join('')}
+    <input class="recherche" id="rech" type="search" placeholder="Rechercher un mot…" value="${esc(filtres.texte)}">
+    <div class="zone-rapides" style="margin-top:10px">
+      <div class="rapides">
+        ${rapides.map(([v,l])=>`<button class="puce" data-rapide="${v}" aria-pressed="${filtres.rapide===v}">${l}</button>`).join('')}
+      </div>
     </div>
     <div class="ligne-compte">
       <b class="chiffre" id="compte">0</b> <span id="mot-fiche">fiche</span>
@@ -845,8 +858,26 @@ function vueListe(){
   const raz = $('#raz');
   if(raz) raz.onclick = ()=>{ filtres = {joueurs:null,age:null,lieu:'',energie:'',dureeMax:null,texte:'',rapide:''}; vueListe(); };
   $('#nouveau').onclick = ()=>aller('#/e/nouvelle');
+  suivreDefilementPourBouton();
 
   rafraichirListe();
+}
+
+/* Le bouton « Nouvelle fiche » s'efface pendant qu'on descend et réapparaît
+   dès qu'on remonte, ou dès qu'on s'arrête en bas de la liste. */
+let ecouteurDefilement = null;
+function suivreDefilementPourBouton(){
+  if(ecouteurDefilement) window.removeEventListener('scroll', ecouteurDefilement);
+  let dernier = window.scrollY;
+  ecouteurDefilement = ()=>{
+    const bouton = $('#nouveau'); if(!bouton) return;
+    const y = window.scrollY;
+    const basAtteint = (y + window.innerHeight) >= (document.body.scrollHeight - 40);
+    if(y > dernier + 8 && y > 220 && !basAtteint) bouton.classList.add('cachee');
+    else if(y < dernier - 8 || basAtteint || y <= 220) bouton.classList.remove('cachee');
+    dernier = y;
+  };
+  window.addEventListener('scroll', ecouteurDefilement, {passive:true});
 }
 
 /* Un seul passage de filtrage sert à la fois au compteur et aux cartes.
