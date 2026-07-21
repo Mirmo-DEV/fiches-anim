@@ -450,12 +450,30 @@ async function demarrerBase(){
         import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
       ]);
       const app = initializeApp(FBCONF);
-      const db  = fs.getFirestore(app);
+
+      /* Cache persistant : Firestore garde une copie complète des fiches dans
+         le téléphone. Conséquence concrète sur le terrain : l'application
+         s'ouvre et fonctionne sans réseau, et les modifications faites hors
+         couverture partent toutes seules dès que le signal revient. */
+      let db;
+      try{
+        db = fs.initializeFirestore(app, {
+          localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() })
+        });
+      }catch(e){
+        db = fs.getFirestore(app);   // navigateur trop ancien : on continue sans cache
+      }
+
       base = { fs, db, col: fs.collection(db,'activites') };
       MODE = 'firebase';
+
       // Écoute permanente : toute modification faite ailleurs arrive ici.
       fs.onSnapshot(base.col,
-        snap => { fiches = snap.docs.map(d=>normaliser({...d.data(), id:d.id})); auChangement(); },
+        snap => {
+          fiches = snap.docs.map(d=>normaliser({...d.data(), id:d.id}));
+          horsLigne(snap.metadata.fromCache);
+          auChangement();
+        },
         err  => { etat('⚠️ Connexion à la base impossible : '+err.message); }
       );
       return;
@@ -475,28 +493,56 @@ function lireLocal(){
 }
 function ecrireLocal(){ localStorage.setItem(CLE_LOCALE, JSON.stringify(fiches)); }
 
-async function enregistrer(f){
+/* Important : on ne fait jamais « await » sur l'écriture Firestore elle-même.
+   Hors réseau, cette promesse n'aboutit qu'au retour du signal — l'application
+   resterait figée après « Enregistrer ». On met donc l'affichage à jour tout de
+   suite, et Firestore rejoue l'écriture en arrière-plan quand il le peut. */
+function memoriser(f){
   f.maj = Date.now();
+  const i = fiches.findIndex(x=>x.id===f.id);
+  if(i>=0) fiches[i] = f; else fiches.push(f);
+  return f;
+}
+function sansId(f){ const c = {...f}; delete c.id; return c; }
+
+async function enregistrer(f){
+  memoriser(f);
   if(MODE==='firebase'){
     const {doc,setDoc} = base.fs;
-    const copie = {...f}; delete copie.id;
-    await setDoc(doc(base.db,'activites',f.id), copie);
+    setDoc(doc(base.db,'activites',f.id), sansId(f))
+      .catch(e => toast('Enregistrement refusé : ' + e.message));
   }else{
-    const i = fiches.findIndex(x=>x.id===f.id);
-    if(i>=0) fiches[i] = f; else fiches.push(f);
-    ecrireLocal(); auChangement();
+    ecrireLocal();
   }
+  auChangement();
 }
 async function supprimer(id){
+  fiches = fiches.filter(x=>x.id!==id);
   if(MODE==='firebase'){
     const {doc,deleteDoc} = base.fs;
-    await deleteDoc(doc(base.db,'activites',id));
+    deleteDoc(doc(base.db,'activites',id))
+      .catch(e => toast('Suppression refusée : ' + e.message));
   }else{
-    fiches = fiches.filter(x=>x.id!==id); ecrireLocal(); auChangement();
+    ecrireLocal();
   }
+  auChangement();
 }
+/* Restauration et bibliothèque de départ : un seul envoi groupé plutôt que
+   quarante, ce qui compte quand on est en 3G. */
 async function enregistrerLot(liste){
-  for(const f of liste) await enregistrer(normaliser(f));
+  const propres = liste.map(normaliser);
+  propres.forEach(memoriser);
+  if(MODE==='firebase'){
+    const {writeBatch,doc} = base.fs;
+    for(let d=0; d<propres.length; d+=400){
+      const lot = writeBatch(base.db);
+      propres.slice(d,d+400).forEach(f=>lot.set(doc(base.db,'activites',f.id), sansId(f)));
+      lot.commit().catch(e => toast('Envoi refusé : ' + e.message));
+    }
+  }else{
+    ecrireLocal();
+  }
+  auChangement();
 }
 /* Si la base refuse une opération, on le dit clairement plutôt que de ne rien
    faire. Le cas le plus courant : les règles de sécurité Firestore. */
@@ -511,6 +557,15 @@ function etat(msg){
   const b = $('#bandeau-etat');
   if(!msg){ b.hidden = true; return; }
   b.textContent = msg; b.hidden = false;
+}
+
+/* Signale qu'on travaille sur la copie gardée dans le téléphone. Rien n'est
+   perdu : tout repart vers la base au retour du réseau. */
+let etaitHorsLigne = null;
+function horsLigne(oui){
+  if(oui === etaitHorsLigne) return;
+  etaitHorsLigne = oui;
+  etat(oui ? '📴 Hors ligne — vos modifications partiront au retour du réseau' : '');
 }
 
 /* ==========================================================================
