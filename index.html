@@ -602,8 +602,15 @@ async function demarrerBase(){
       base = { fs, db, col: fs.collection(db,'activites') };
       MODE = 'firebase';
 
-      // Écoute permanente : toute modification faite ailleurs arrive ici.
-      fs.onSnapshot(base.col,
+      /* Écoute permanente : toute modification faite ailleurs arrive ici.
+
+         includeMetadataChanges est indispensable ici. Sans lui, Firestore
+         n'appelle cette fonction que lorsque les DONNÉES changent. Au démarrage
+         la première réponse vient du cache local, donc fromCache est vrai et on
+         affiche « hors ligne » ; quand le serveur confirme ensuite les mêmes
+         fiches, seule la métadonnée change, la fonction n'est pas rappelée et
+         le bandeau reste affiché à tort, indéfiniment. */
+      fs.onSnapshot(base.col, { includeMetadataChanges: true },
         snap => {
           fiches = snap.docs.map(d=>normaliser({...d.data(), id:d.id}));
           horsLigne(snap.metadata.fromCache);
@@ -690,18 +697,43 @@ window.addEventListener('unhandledrejection', e=>{
 
 function etat(msg){
   const b = $('#bandeau-etat');
-  if(!msg){ b.hidden = true; return; }
+  // On vide aussi le texte : un bandeau masqué qui conserve son ancien message
+  // donne de fausses pistes quand on inspecte la page.
+  if(!msg){ b.hidden = true; b.textContent = ''; return; }
   b.textContent = msg; b.hidden = false;
 }
 
-/* Signale qu'on travaille sur la copie gardée dans le téléphone. Rien n'est
-   perdu : tout repart vers la base au retour du réseau. */
+/* Signale qu'on travaille sur la copie gardée dans l'appareil. Rien n'est
+   perdu : tout repart vers la base au retour du réseau.
+
+   Toute page démarre forcément par le cache, le temps que le serveur réponde.
+   Afficher le bandeau tout de suite le ferait clignoter à chaque ouverture :
+   on attend donc quelques secondes avant de l'afficher. En revanche, si le
+   navigateur nous dit lui-même qu'il n'y a pas de réseau, inutile d'attendre. */
 let etaitHorsLigne = null;
+let attenteHorsLigne = null;
+const MESSAGE_HORS_LIGNE = '📴 Hors ligne — envoi au retour du réseau';
+
 function horsLigne(oui){
-  if(oui === etaitHorsLigne) return;
-  etaitHorsLigne = oui;
-  etat(oui ? '📴 Hors ligne — envoi au retour du réseau' : '');
+  clearTimeout(attenteHorsLigne);
+
+  if(!oui){                       // le serveur a répondu : on est bien connecté
+    etaitHorsLigne = false;
+    etat('');
+    return;
+  }
+
+  const afficher = ()=>{ etaitHorsLigne = true; etat(MESSAGE_HORS_LIGNE); };
+
+  if(navigator.onLine === false) afficher();   // certitude : pas la peine d'attendre
+  else if(!etaitHorsLigne) attenteHorsLigne = setTimeout(afficher, 3000);
 }
+
+/* Le navigateur nous prévient aussi directement des coupures. Au retour du
+   réseau on ne cache rien de nous-mêmes : c'est Firestore qui confirmera que
+   la liaison est rétablie, et c'est lui qui a raison. */
+window.addEventListener('offline', ()=>{ if(MODE==='firebase') horsLigne(true); });
+window.addEventListener('online',  ()=>clearTimeout(attenteHorsLigne));
 
 /* ==========================================================================
    4. LES FILTRES
