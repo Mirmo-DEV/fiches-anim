@@ -222,9 +222,14 @@ html[data-theme="sombre"] .btn-danger{color:#ff9d8f;border-color:#5c322c}
   border:0;background:var(--bleu-clair);color:var(--bleu);font-weight:600;
   padding:6px 12px;border-radius:9px;font-family:var(--police-chiffre);font-size:15px;
   min-height:38px;border-bottom:2px dashed var(--bleu);
+  /* Sans ça, le bouton hérite de l'interligne aéré de la phrase (2.35) et
+     devient trois fois trop haut. */
+  line-height:1.35;vertical-align:middle;
 }
 html[data-theme="sombre"] .trou{color:#9cc3ff;border-bottom-color:#4d80c9}
-.trou.vide{background:transparent;color:var(--texte-doux);border-bottom-color:var(--bord);font-weight:500}
+/* Nom distinct de la classe « .vide » du message « aucun résultat » : les deux
+   se cumulaient et déformaient les trous de la phrase. */
+.trou.trou-vide{background:transparent;color:var(--texte-doux);border-bottom-color:var(--bord);font-weight:500}
 select.trou{appearance:none;-webkit-appearance:none;padding-right:12px}
 .recherche{
   width:100%;padding:13px 15px;border-radius:var(--r-s);border:1px solid var(--bord);
@@ -749,14 +754,14 @@ function vueListe(){
       </button>
       <div class="corps-phrase" id="corps-phrase">
         Il me faut un jeu pour
-        <button class="trou ${filtres.joueurs?'':'vide'}" data-f="joueurs">${filtres.joueurs ?? '___'}</button>
+        <button class="trou ${filtres.joueurs?'':'trou-vide'}" data-f="joueurs">${filtres.joueurs ?? '___'}</button>
         enfants de
-        <button class="trou ${filtres.age?'':'vide'}" data-f="age">${filtres.age ?? '___'}</button>
+        <button class="trou ${filtres.age?'':'trou-vide'}" data-f="age">${filtres.age ?? '___'}</button>
         ans,
-        <button class="trou ${filtres.lieu?'':'vide'}" data-f="lieu">${filtres.lieu || 'n\'importe où'}</button>,
-        <button class="trou ${filtres.energie?'':'vide'}" data-f="energie">${filtres.energie || 'toute énergie'}</button>,
+        <button class="trou ${filtres.lieu?'':'trou-vide'}" data-f="lieu">${filtres.lieu || 'n\'importe où'}</button>,
+        <button class="trou ${filtres.energie?'':'trou-vide'}" data-f="energie">${filtres.energie || 'toute énergie'}</button>,
         en moins de
-        <button class="trou ${filtres.dureeMax?'':'vide'}" data-f="dureeMax">${filtres.dureeMax ?? '___'}</button>
+        <button class="trou ${filtres.dureeMax?'':'trou-vide'}" data-f="dureeMax">${filtres.dureeMax ?? '___'}</button>
         min.
       </div>
     </div>
