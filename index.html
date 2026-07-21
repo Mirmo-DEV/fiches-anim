@@ -199,9 +199,25 @@ html[data-theme="sombre"] .btn-danger{color:#ff9d8f;border-color:#5c322c}
 /* ============================ FILTRES ============================ */
 .phrase{
   background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);
-  padding:15px;margin:14px 0;box-shadow:var(--ombre);
-  font-size:17px;line-height:2.35;
+  margin:14px 0;box-shadow:var(--ombre);overflow:hidden;
 }
+/* Repliée, la barre de filtres tient sur une ligne : sur un téléphone, la
+   première fiche est visible sans défiler. Dépliée, on retrouve la phrase
+   complète. Le choix est mémorisé. */
+.entete-phrase{
+  width:100%;background:transparent;border:0;padding:14px 15px;
+  display:flex;align-items:center;gap:10px;text-align:left;min-height:52px;
+}
+.entete-phrase .resume{flex:1;min-width:0;font-size:15.5px;color:var(--texte-doux);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entete-phrase .resume.actif{color:var(--texte);font-weight:500}
+.entete-phrase .chevron{color:var(--texte-doux);font-size:13px;transition:transform .18s ease}
+.entete-phrase[aria-expanded="true"] .chevron{transform:rotate(180deg)}
+.corps-phrase{
+  padding:0 15px 15px;font-size:17px;line-height:2.35;
+  border-top:1px solid var(--bord);margin-top:-1px;padding-top:13px;
+}
+.entete-phrase[aria-expanded="false"] + .corps-phrase{display:none}
 .trou{
   border:0;background:var(--bleu-clair);color:var(--bleu);font-weight:600;
   padding:6px 12px;border-radius:9px;font-family:var(--police-chiffre);font-size:15px;
@@ -623,6 +639,27 @@ function filtresActifs(){
   return !!(filtres.joueurs||filtres.age||filtres.lieu||filtres.energie
             ||filtres.dureeMax||filtres.texte||filtres.rapide);
 }
+/* Seuls les filtres de la phrase, pour savoir quoi afficher quand elle est repliée. */
+function filtresPhraseActifs(){
+  return !!(filtres.joueurs||filtres.age||filtres.lieu||filtres.energie||filtres.dureeMax);
+}
+function resumeFiltres(){
+  if(!filtresPhraseActifs()) return 'Il me faut un jeu pour…';
+  const p = [];
+  if(filtres.joueurs)  p.push(filtres.joueurs + ' enfants');
+  if(filtres.age)      p.push(filtres.age + ' ans');
+  if(filtres.lieu)     p.push(filtres.lieu);
+  if(filtres.energie)  p.push(filtres.energie);
+  if(filtres.dureeMax) p.push('≤ ' + filtres.dureeMax + ' min');
+  return p.join('  ·  ');
+}
+/* Dépliée d'office sur grand écran, repliée sur téléphone — puis c'est le
+   choix de l'utilisateur qui prime. */
+function phraseOuverte(){
+  const choix = localStorage.getItem('phrase-ouverte');
+  if(choix) return choix === 'oui';
+  return window.innerWidth >= 620;
+}
 function resultats(){
   const t = filtres.texte.trim().toLowerCase();
   return fiches.filter(f=>{
@@ -672,14 +709,25 @@ function critereBloquant(){
    5. NAVIGATION (adresse du navigateur → écran affiché)
    ========================================================================== */
 function aller(hash){ location.hash = hash; }
+
+/* On note où en était la liste avant de la quitter, pour y revenir au même
+   endroit. Sans ça, consulter une fiche au milieu d'une longue liste renvoie
+   tout en haut et il faut refaire défiler à chaque fois. */
+let defilementListe = 0;
+let hashPrecedent = '#/';
+
 function router(){
   const h = location.hash || '#/';
   const m = h.match(/^#\/(a|e)\/(.+)$/);
+  if(hashPrecedent === '#/') defilementListe = window.scrollY;
+  hashPrecedent = h;
   $('#btn-retour').hidden = (h === '#/');
-  window.scrollTo(0,0);
-  if(m && m[1]==='a') return vueFiche(m[2]);
-  if(m && m[1]==='e') return vueEdition(m[2]);
-  return vueListe();
+
+  if(m && m[1]==='a'){ window.scrollTo(0,0); return vueFiche(m[2]); }
+  if(m && m[1]==='e'){ window.scrollTo(0,0); return vueEdition(m[2]); }
+
+  vueListe();
+  requestAnimationFrame(()=>window.scrollTo(0, defilementListe));
 }
 window.addEventListener('hashchange', router);
 
@@ -692,18 +740,25 @@ function vueListe(){
     ['','Toutes'],['favoris','★ Favoris'],['selection','● Sélection du jour'],
     ['sans-materiel','Sans matériel'],['avec-materiel','Avec matériel'],['brouillon','À compléter']
   ];
+  const ouverte = phraseOuverte();
   $('#vue').innerHTML = `
     <div class="phrase">
-      Il me faut un jeu pour
-      <button class="trou ${filtres.joueurs?'':'vide'}" data-f="joueurs">${filtres.joueurs ?? '___'}</button>
-      enfants de
-      <button class="trou ${filtres.age?'':'vide'}" data-f="age">${filtres.age ?? '___'}</button>
-      ans,
-      <button class="trou ${filtres.lieu?'':'vide'}" data-f="lieu">${filtres.lieu || 'n\'importe où'}</button>,
-      <button class="trou ${filtres.energie?'':'vide'}" data-f="energie">${filtres.energie || 'toute énergie'}</button>,
-      en moins de
-      <button class="trou ${filtres.dureeMax?'':'vide'}" data-f="dureeMax">${filtres.dureeMax ?? '___'}</button>
-      min.
+      <button class="entete-phrase" id="bascule-phrase" aria-expanded="${ouverte}" aria-controls="corps-phrase">
+        <span class="resume ${filtresPhraseActifs()?'actif':''}">${esc(resumeFiltres())}</span>
+        <span class="chevron" aria-hidden="true">▼</span>
+      </button>
+      <div class="corps-phrase" id="corps-phrase">
+        Il me faut un jeu pour
+        <button class="trou ${filtres.joueurs?'':'vide'}" data-f="joueurs">${filtres.joueurs ?? '___'}</button>
+        enfants de
+        <button class="trou ${filtres.age?'':'vide'}" data-f="age">${filtres.age ?? '___'}</button>
+        ans,
+        <button class="trou ${filtres.lieu?'':'vide'}" data-f="lieu">${filtres.lieu || 'n\'importe où'}</button>,
+        <button class="trou ${filtres.energie?'':'vide'}" data-f="energie">${filtres.energie || 'toute énergie'}</button>,
+        en moins de
+        <button class="trou ${filtres.dureeMax?'':'vide'}" data-f="dureeMax">${filtres.dureeMax ?? '___'}</button>
+        min.
+      </div>
     </div>
     <input class="recherche" id="rech" type="search" placeholder="Rechercher un mot (nom, matériel, étape…)" value="${esc(filtres.texte)}">
     <div class="rapides" style="margin-top:10px">
@@ -716,10 +771,14 @@ function vueListe(){
     <div class="cartes" id="cartes"></div>
     <button class="flottant" id="nouveau">＋ Nouvelle fiche</button>`;
 
+  $('#bascule-phrase').onclick = ()=>{
+    localStorage.setItem('phrase-ouverte', ouverte ? 'non' : 'oui');
+    vueListe();
+  };
   $$('[data-f]').forEach(b => b.onclick = ()=>choisirFiltre(b.dataset.f));
   $$('[data-rapide]').forEach(b => b.onclick = ()=>{
     filtres.rapide = (filtres.rapide===b.dataset.rapide) ? '' : b.dataset.rapide;
-    vueListe();
+    vueListe(); window.scrollTo(0,0);
   });
   /* On attend une courte pause dans la frappe avant de refiltrer. Redessiner à
      chaque lettre fait saccader la frappe sur un téléphone. */
