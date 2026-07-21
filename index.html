@@ -230,6 +230,10 @@ select.trou{appearance:none;-webkit-appearance:none;padding-right:12px}
   background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);
   padding:15px 16px;box-shadow:var(--ombre);text-align:left;width:100%;position:relative;
   transition:transform .12s ease;
+  /* Le navigateur ne dessine pas les cartes situées hors de l'écran. Sur une
+     longue liste, le défilement reste fluide même sur un téléphone modeste. */
+  content-visibility:auto;
+  contain-intrinsic-size:auto 148px;
 }
 .carte:active{transform:scale(.988)}
 .carte.brouillon{border-left:5px solid #e8a33d}
@@ -598,6 +602,23 @@ function horsLigne(oui){
    ========================================================================== */
 let filtres = { joueurs:null, age:null, lieu:'', energie:'', dureeMax:null, texte:'', rapide:'' };
 
+/* Le texte dans lequel la recherche fouille est assemblé une fois par fiche,
+   puis gardé de côté. Sans ça on le reconstruirait pour chaque fiche à chaque
+   lettre tapée. La clé inclut la date de modification : une fiche corrigée
+   refabrique automatiquement son index. */
+const cacheRecherche = new Map();
+function texteCherchable(f){
+  const cle = f.id + '|' + f.maj;
+  let s = cacheRecherche.get(cle);
+  if(s === undefined){
+    s = [f.nom, f.resume, f.materiel.join(' '), f.tags.join(' '),
+         f.deroule.join(' '), f.objectif.join(' ')].join(' ').toLowerCase();
+    if(cacheRecherche.size > 800) cacheRecherche.clear();
+    cacheRecherche.set(cle, s);
+  }
+  return s;
+}
+
 function filtresActifs(){
   return !!(filtres.joueurs||filtres.age||filtres.lieu||filtres.energie
             ||filtres.dureeMax||filtres.texte||filtres.rapide);
@@ -623,11 +644,7 @@ function resultats(){
     if(filtres.rapide==='selection' && !f.selection) return false;
     if(filtres.rapide==='brouillon' && f.statut!=='brouillon') return false;
 
-    if(t){
-      const foin = [f.nom, f.resume, f.materiel.join(' '), f.tags.join(' '),
-                    f.deroule.join(' '), f.objectif.join(' ')].join(' ').toLowerCase();
-      if(!foin.includes(t)) return false;
-    }
+    if(t && !texteCherchable(f).includes(t)) return false;
     return true;
   }).sort((a,b)=>
       (b.favori?1:0)-(a.favori?1:0) ||
@@ -704,24 +721,36 @@ function vueListe(){
     filtres.rapide = (filtres.rapide===b.dataset.rapide) ? '' : b.dataset.rapide;
     vueListe();
   });
+  /* On attend une courte pause dans la frappe avant de refiltrer. Redessiner à
+     chaque lettre fait saccader la frappe sur un téléphone. */
   const rech = $('#rech');
-  rech.oninput = ()=>{ filtres.texte = rech.value; dessinerCartes(); majCompte(); };
+  let attente;
+  rech.oninput = ()=>{
+    clearTimeout(attente);
+    attente = setTimeout(()=>{ filtres.texte = rech.value; rafraichirListe(); }, 160);
+  };
   const raz = $('#raz');
   if(raz) raz.onclick = ()=>{ filtres = {joueurs:null,age:null,lieu:'',energie:'',dureeMax:null,texte:'',rapide:''}; vueListe(); };
   $('#nouveau').onclick = ()=>aller('#/e/nouvelle');
 
-  dessinerCartes(); majCompte();
+  rafraichirListe();
 }
-function majCompte(){
-  const n = resultats().length;
-  const c = $('#compte'); if(!c) return;
-  c.textContent = n;
-  $('#mot-fiche').textContent = n>1 ? 'fiches trouvées' : 'fiche trouvée';
-}
-function dessinerCartes(){
+
+/* Un seul passage de filtrage sert à la fois au compteur et aux cartes.
+   Auparavant la liste était parcourue deux fois pour le même résultat. */
+function rafraichirListe(){
   const zone = $('#cartes'); if(!zone) return;
   const liste = resultats();
 
+  const c = $('#compte');
+  if(c){
+    c.textContent = liste.length;
+    $('#mot-fiche').textContent = liste.length>1 ? 'fiches trouvées' : 'fiche trouvée';
+  }
+  dessinerCartes(zone, liste);
+}
+
+function dessinerCartes(zone, liste){
   if(!fiches.length){
     zone.innerHTML = `<div class="vide">
       <div class="gros">🎯</div><h3>Votre répertoire est vide</h3>
@@ -823,7 +852,7 @@ function vueFiche(id){
     ${bloc('Objectifs', f.objectif.length ? `<div class="donnees">${f.objectif.map(o=>`<span class="d tag">${esc(o)}</span>`).join('')}</div>`:'')}
     ${bloc('Matériel',  f.materiel.length ? `<ul>${f.materiel.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>` : '<div class="encadre">Aucun matériel nécessaire.</div>')}
     ${bloc('Déroulé',   f.deroule.length ? `<ol class="etapes">${f.deroule.map(e=>`<li><span>${esc(e)}</span></li>`).join('')}</ol>`:'')}
-    ${bloc('Schéma',    f.schema ? `<div class="schema"><img src="${f.schema}" alt="Schéma de l'activité"></div>`:'')}
+    ${bloc('Schéma',    f.schema ? `<div class="schema"><img src="${f.schema}" alt="Schéma de l'activité" loading="lazy" decoding="async"></div>`:'')}
     ${bloc('Variantes', f.variantes ? `<div class="encadre">${esc(f.variantes).replace(/\n/g,'<br>')}</div>`:'')}
     ${bloc('Points de vigilance', f.securite ? `<div class="encadre alerte">${esc(f.securite).replace(/\n/g,'<br>')}</div>`:'')}
     ${bloc('Mes notes', f.notes ? `<div class="encadre">${esc(f.notes).replace(/\n/g,'<br>')}</div>`:'')}
