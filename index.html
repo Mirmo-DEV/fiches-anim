@@ -146,6 +146,9 @@ a{color:var(--bleu)}
 
 .chiffre{font-family:var(--police-chiffre);font-variant-numeric:tabular-nums}
 .conteneur{max-width:860px;margin:0 auto;padding:0 14px}
+/* Appliquée le temps de mesurer la fiche avant impression : largeur exacte
+   d'une feuille A4 moins ses marges. Jamais visible par l'utilisateur. */
+.conteneur.largeur-papier{width:186mm;max-width:186mm;padding:0}
 .masque{display:none!important}
 
 /* ============================ PORTE D'ENTRÉE ============================ */
@@ -423,11 +426,28 @@ textarea.saisie{min-height:90px;resize:vertical;line-height:1.5}
   }
 
   header.top,.flottant,.actions,.actions-rapides,.bandeau-etat,#toast,.no-print{display:none!important}
-  body{background:#fff;color:#000;font-size:11.5pt}
+  body{background:#fff;color:#000;font-size:10pt;line-height:1.4}
   .conteneur{max-width:100%;padding:0}
-  .fiche{padding:0}
-  .fiche .titre{font-size:24pt;color:#000}
-  .fiche .res{color:#333}
+
+  /* Facteur calculé juste avant l'impression pour que la fiche tienne sur une
+     seule page, quelle que soit la longueur du déroulé. Voir ajusterImpression().
+     Ne pas « compenser » la largeur en la divisant par le facteur : le
+     navigateur résout déjà les pourcentages en tenant compte du zoom, et une
+     compensation manuelle fait déborder la fiche hors de la feuille (mesuré :
+     1004px de contenu sur 703px de papier, le côté droit était coupé). */
+  .fiche{padding:0;zoom:var(--echelle-impression,1)}
+
+  .fiche .titre{font-size:19pt;color:#000;margin:0 0 2px}
+  .fiche .res{color:#333;font-size:10.5pt;margin:0 0 8px}
+  .bloc{margin-bottom:10px}
+  .bloc h2{font-size:9pt;margin-bottom:4px}
+  .bloc ul{padding-left:16px}
+  .bloc ul li{margin-bottom:2px}
+  .etapes li{margin-bottom:5px;gap:8px}
+  .etapes li::before{flex:0 0 20px;height:20px;font-size:10px}
+  .encadre{padding:7px 10px}
+  .bandeau div{padding:5px 4px}
+  .bandeau .val{font-size:11pt}
   .bandeau{border:1px solid #999;background:#999}
   .bandeau div{background:#fff}
   .bandeau .lab{color:#444}
@@ -445,12 +465,12 @@ textarea.saisie{min-height:90px;resize:vertical;line-height:1.5}
      tient sur une seule page. */
   .schema{text-align:center;break-inside:avoid}
   .schema img{
-    max-height:80mm;width:auto;max-width:100%;
+    max-height:55mm;width:auto;max-width:100%;
     object-fit:contain;border:1px solid #bbb;
     margin:0 auto;   /* l'image est en display:block, text-align ne suffit pas */
   }
 
-  @page{margin:16mm}
+  @page{margin:12mm}
 }
 </style>
 </head>
@@ -1473,6 +1493,92 @@ function compresserImage(source){
     lecteur.readAsDataURL(source);
   });
 }
+
+/* ==========================================================================
+   8bis. TENIR SUR UNE SEULE PAGE À L'IMPRESSION
+   --------------------------------------------------------------------------
+   Une fiche courte tenait sur une page, une fiche au déroulé long débordait
+   sur une seconde. Plutôt que de choisir une taille de police au hasard, on
+   mesure la fiche et on calcule la réduction nécessaire.
+
+   La subtilité : il faut mesurer la fiche telle qu'elle sera IMPRIMÉE, pas
+   telle qu'elle est à l'écran. On applique donc réellement les règles
+   d'impression le temps de la mesure, puis on les remet comme elles étaient.
+   ========================================================================== */
+const PAGE_MM = { hauteur:297, largeur:210, marge:12 };   // A4, marge de @page
+
+function regleImpression(){
+  for(const feuille of document.styleSheets){
+    try{
+      for(const r of feuille.cssRules){
+        if(r.type === CSSRule.MEDIA_RULE && r.conditionText.includes('print')) return r;
+      }
+    }catch{ /* feuille externe illisible : on l'ignore */ }
+  }
+  return null;
+}
+/* Combien de pixels fait un millimètre ici ? On le demande au navigateur
+   plutôt que de supposer 96 points par pouce. */
+function pixelsParMm(){
+  const t = document.createElement('div');
+  t.style.cssText = 'position:absolute;visibility:hidden;height:100mm';
+  document.body.appendChild(t);
+  const px = t.getBoundingClientRect().height / 100;
+  t.remove();
+  return px;
+}
+
+function ajusterImpression(){
+  const fiche = document.querySelector('.fiche');
+  const regle = regleImpression();
+  if(!fiche || !regle) return;
+
+  const racine = document.documentElement;
+  const conteneur = fiche.parentElement;
+
+  /* Le try/finally n'est pas décoratif : entre ces deux lignes, l'écran est en
+     mise en page d'impression. Si quoi que ce soit échouait au milieu, l'appli
+     resterait affichée comme une feuille imprimée jusqu'au rechargement. */
+  try{
+    regle.media.mediaText = 'all';                 // on passe en mise en page d'impression
+    conteneur.classList.add('largeur-papier');     // et à la largeur réelle du papier
+
+    const mm = pixelsParMm();
+    const dispo = (PAGE_MM.hauteur - 2*PAGE_MM.marge) * mm;
+
+    let facteur = 1;
+    racine.style.setProperty('--echelle-impression', facteur);
+
+    // Le texte se remet en page à chaque réduction : on converge en quelques tours.
+    for(let tour = 0; tour < 6; tour++){
+      const hauteur = fiche.getBoundingClientRect().height;
+      if(hauteur <= dispo) break;
+      // 0.98 : une petite marge, pour ne pas frôler la limite au point près.
+      facteur = Math.max(0.55, facteur * (dispo / hauteur) * 0.98);
+      racine.style.setProperty('--echelle-impression', facteur);
+    }
+
+    /* En rétrécissant, le texte tient sur moins de lignes et la fiche devient
+       plus courte que nécessaire : on descendait à 0,82 page alors qu'on pouvait
+       rester bien plus gros. On remonte donc par petits pas tant que ça tient,
+       pour imprimer le plus lisible possible. */
+    for(let tour = 0; tour < 10 && facteur < 1; tour++){
+      const essai = Math.min(1, facteur * 1.03);
+      racine.style.setProperty('--echelle-impression', essai);
+      if(fiche.getBoundingClientRect().height > dispo){
+        racine.style.setProperty('--echelle-impression', facteur);   // trop loin, on revient
+        break;
+      }
+      facteur = essai;
+    }
+  }finally{
+    conteneur.classList.remove('largeur-papier');
+    regle.media.mediaText = 'print';              // on rend l'écran à son état normal
+  }
+}
+
+/* Vaut aussi bien pour le bouton « Imprimer » que pour un Ctrl+P direct. */
+window.addEventListener('beforeprint', ajusterImpression);
 
 /* ==========================================================================
    9. MODALES ET CONFIRMATION
