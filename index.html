@@ -292,15 +292,15 @@ html[data-theme="sombre"] .etiq-brouillon{background:#3d2f13;color:#f0c46e}
 
 /* ============================ FICHE DÉTAIL ============================ */
 .fiche{padding-bottom:110px}
-.fiche .titre{margin:16px 0 4px;font-size:29px}
-.fiche .res{color:var(--texte-doux);font-size:16.5px;margin:0 0 16px}
+.fiche .titre{margin:12px 0 3px;font-size:27px}
+.fiche .res{color:var(--texte-doux);font-size:16px;margin:0 0 12px}
 .bandeau{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:1px;
-  background:var(--bord);border:1px solid var(--bord);border-radius:var(--r);overflow:hidden;margin-bottom:18px;
+  background:var(--bord);border:1px solid var(--bord);border-radius:var(--r);overflow:hidden;
 }
-.bandeau div{background:var(--carte);padding:11px 8px;text-align:center}
-.bandeau .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--texte-doux)}
-.bandeau .val{font-family:var(--police-chiffre);font-size:16px;font-weight:700;margin-top:2px}
+.bandeau div{background:var(--carte);padding:7px 6px;text-align:center}
+.bandeau .lab{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--texte-doux);line-height:1.3}
+.bandeau .val{font-family:var(--police-chiffre);font-size:14.5px;font-weight:700;margin-top:1px;line-height:1.25}
 .bloc{margin-bottom:22px}
 .bloc h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--bleu-profond-2);
   font-family:var(--police-texte);font-weight:600;margin-bottom:9px}
@@ -318,6 +318,15 @@ html[data-theme="sombre"] .bloc h2{color:var(--bleu)}
 .encadre.alerte{border-left:4px solid #e8a33d}
 .schema img{width:100%;border-radius:var(--r-s);border:1px solid var(--bord);display:block}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+/* Les trois actions rapides tenaient sur deux rangées et repoussaient le
+   déroulé hors de l'écran. Une seule rangée qui défile, juste sous les
+   chiffres : c'est le contenu de la fiche qui doit occuper l'écran. */
+.actions-rapides{
+  display:flex;gap:8px;margin:12px 0 18px;overflow-x:auto;
+  padding-bottom:2px;scrollbar-width:none;
+}
+.actions-rapides::-webkit-scrollbar{display:none}
+.actions-rapides .btn{white-space:nowrap;flex:0 0 auto;padding:9px 14px;min-height:42px;font-size:14.5px}
 
 /* ============================ FORMULAIRE ============================ */
 .champ{margin-bottom:20px}
@@ -947,19 +956,22 @@ function vueFiche(id){
       ${cases.map(([l,v])=>`<div><div class="lab">${l}</div><div class="val">${esc(v)}</div></div>`).join('')}
     </div>
 
-    <div class="actions no-print">
+    <div class="actions-rapides no-print">
       <button class="btn ${f.favori?'btn-citron':''}" id="a-fav">${f.favori?'★ Favori':'☆ Favori'}</button>
       <button class="btn ${f.selection?'btn-citron':''}" id="a-sel">${f.selection?'● Dans la sélection':'○ Sélection du jour'}</button>
-      <button class="btn" id="a-joue">✓ Je l'ai jouée aujourd'hui</button>
+      <button class="btn" id="a-joue">✓ Jouée aujourd'hui</button>
     </div>
 
-    ${bloc('Objectifs', f.objectif.length ? `<div class="donnees">${f.objectif.map(o=>`<span class="d tag">${esc(o)}</span>`).join('')}</div>`:'')}
+    <!-- Ordre pensé pour le terrain : ce qu'il faut apporter, puis comment on
+         joue. Les objectifs sont une information de préparation, ils sont
+         descendus plus bas avec les mots-clés. -->
     ${bloc('Matériel',  f.materiel.length ? `<ul>${f.materiel.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>` : '<div class="encadre">Aucun matériel nécessaire.</div>')}
     ${bloc('Déroulé',   f.deroule.length ? `<ol class="etapes">${f.deroule.map(e=>`<li><span>${esc(e)}</span></li>`).join('')}</ol>`:'')}
     ${bloc('Schéma',    f.schema ? `<div class="schema"><img src="${f.schema}" alt="Schéma de l'activité" loading="lazy" decoding="async"></div>`:'')}
     ${bloc('Variantes', f.variantes ? `<div class="encadre">${esc(f.variantes).replace(/\n/g,'<br>')}</div>`:'')}
     ${bloc('Points de vigilance', f.securite ? `<div class="encadre alerte">${esc(f.securite).replace(/\n/g,'<br>')}</div>`:'')}
     ${bloc('Mes notes', f.notes ? `<div class="encadre">${esc(f.notes).replace(/\n/g,'<br>')}</div>`:'')}
+    ${bloc('Objectifs', f.objectif.length ? `<div class="donnees">${f.objectif.map(o=>`<span class="d tag">${esc(o)}</span>`).join('')}</div>`:'')}
     ${bloc('Mots-clés', f.tags.length ? `<div class="donnees">${f.tags.map(t=>`<span class="d tag">#${esc(t)}</span>`).join('')}</div>`:'')}
 
     <div class="actions no-print" style="border-top:1px solid var(--bord);padding-top:18px">
