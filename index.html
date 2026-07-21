@@ -362,6 +362,13 @@ textarea.saisie{min-height:90px;resize:vertical;line-height:1.5}
   border-radius:var(--r-s);flex:0 0 44px;font-size:18px}
 .numero{flex:0 0 28px;height:46px;display:grid;place-items:center;font-family:var(--police-chiffre);
   color:var(--texte-doux);font-size:14px}
+.choix-image{display:flex;flex-wrap:wrap;gap:8px}
+.choix-image .btn{flex:1 1 auto;justify-content:center;min-width:150px}
+.depose{
+  border:2px dashed var(--bord);border-radius:var(--r-s);padding:22px 14px;
+  text-align:center;color:var(--texte-doux);font-size:14px;margin-bottom:9px;
+}
+#zone-schema.survol .depose{border-color:var(--bleu);color:var(--bleu);background:var(--bleu-clair)}
 .repli{margin-top:9px}
 .repli>summary{
   cursor:pointer;font-size:14px;color:var(--bleu);padding:8px 2px;min-height:38px;
@@ -1039,6 +1046,7 @@ function vueFiche(id){
    8. ÉCRAN : LA SAISIE
    ========================================================================== */
 let brouillonEnCours = null;
+let gestionnaireCollage = null;   // écouteur « coller une image », remplacé à chaque saisie
 
 function vueEdition(id){
   const nouvelle = (id==='nouvelle');
@@ -1132,11 +1140,26 @@ function vueEdition(id){
     </div>
 
     <div class="champ">
-      <label>Schéma</label>
-      <div class="aide">Photographiez un croquis fait à la main. L'image est réduite automatiquement.</div>
+      <label>Schéma ou photo</label>
+      <div class="aide">Un croquis fait à la main, une photo, ou une image trouvée sur internet. Elle est réduite automatiquement.</div>
       <div id="zone-schema"></div>
-      <input type="file" id="c-photo" accept="image/*" capture="environment" hidden>
-      <button type="button" class="btn" id="btn-photo">📷 Prendre ou choisir une photo</button>
+
+      <!-- Deux champs distincts : celui du haut force l'appareil photo (capture),
+           celui du bas ouvre la galerie et les fichiers. Un seul champ avec
+           « capture » interdisait purement et simplement la galerie sur mobile. -->
+      <input type="file" id="c-appareil" accept="image/*" capture="environment" hidden>
+      <input type="file" id="c-fichier"  accept="image/*" hidden>
+
+      <div class="choix-image">
+        <button type="button" class="btn" id="btn-appareil">📷 Prendre une photo</button>
+        <button type="button" class="btn" id="btn-fichier">🖼️ Choisir une image</button>
+        <button type="button" class="btn" id="btn-adresse">🌐 Depuis une adresse web</button>
+      </div>
+      <div class="aide" style="margin-top:8px">
+        Sur ordinateur, vous pouvez aussi copier une image sur un site
+        (clic droit → copier l'image) puis la coller ici avec Ctrl+V,
+        ou la faire glisser directement sur cette zone.
+      </div>
     </div>
 
     <div class="champ">
@@ -1234,24 +1257,120 @@ function vueEdition(id){
     if(!f.materiel.includes(b.dataset.add)) ajouterLigne('materiel','#l-materiel',false,b.dataset.add);
   });
 
-  /* --- photo du schéma --- */
+  /* --- image du schéma : appareil photo, galerie, adresse web, collage, glisser --- */
   function dessinerSchema(){
     const z = $('#zone-schema');
     z.innerHTML = f.schema
       ? `<div class="schema" style="margin-bottom:9px"><img src="${f.schema}" alt="Aperçu du schéma"></div>
          <button type="button" class="btn btn-mini btn-danger" id="sup-schema">🗑 Retirer l'image</button>`
-      : '';
-    const s = $('#sup-schema'); if(s) s.onclick = ()=>{ f.schema=''; dessinerSchema(); };
+      : '<div class="depose" id="depose">Déposez une image ici, ou utilisez les boutons ci-dessous</div>';
+    const s = $('#sup-schema'); if(s) s.onclick = ()=>{ f.schema=''; marquerModifie(); dessinerSchema(); };
   }
-  dessinerSchema();
-  $('#btn-photo').onclick = ()=>$('#c-photo').click();
-  $('#c-photo').onchange = async e=>{
-    const fichier = e.target.files[0]; if(!fichier) return;
+
+  /* Point d'entrée unique : d'où que vienne l'image, elle passe par ici. */
+  async function poserImage(source, provenance){
     toast('Traitement de l\'image…');
-    try{ f.schema = await compresserImage(fichier); dessinerSchema(); toast('Image ajoutée'); }
-    catch(err){ toast('Image impossible à lire'); }
-    e.target.value = '';
+    try{
+      f.schema = await compresserImage(source);
+      marquerModifie();
+      dessinerSchema();
+      toast('Image ajoutée' + (provenance ? ' ('+provenance+')' : ''));
+    }catch(err){
+      toast('Image illisible : ' + err.message);
+    }
+  }
+
+  dessinerSchema();
+  $('#btn-appareil').onclick = ()=>$('#c-appareil').click();
+  $('#btn-fichier').onclick  = ()=>$('#c-fichier').click();
+  ['#c-appareil','#c-fichier'].forEach(sel=>{
+    $(sel).onchange = async e=>{
+      const fichier = e.target.files[0];
+      if(fichier) await poserImage(fichier);
+      e.target.value = '';   // pour pouvoir reprendre le même fichier
+    };
+  });
+
+  /* Depuis une adresse web. Beaucoup de sites refusent qu'une autre page
+     télécharge leurs images (c'est une protection standard du web, on ne peut
+     pas la contourner) : dans ce cas on l'explique et on propose l'alternative. */
+  $('#btn-adresse').onclick = ()=>{
+    modale('Image depuis une adresse web', `
+      <p style="color:var(--texte-doux);margin-top:0;font-size:14.5px">
+        Sur le site, faites un clic droit sur l'image → « Copier l'adresse de l'image »,
+        puis collez-la ci-dessous.</p>
+      <input class="saisie" id="url-image" type="url" inputmode="url" placeholder="https://…" autocomplete="off">
+      <button class="btn btn-citron" id="url-ok" style="justify-content:center;margin-top:12px">Importer l'image</button>`,
+      b=>{
+        const champ = $('#url-image', b);
+        champ.focus();
+        const lancer = async ()=>{
+          const url = champ.value.trim();
+          if(!url) return;
+          fermerModale();
+          toast('Téléchargement…');
+          try{
+            const rep = await fetch(url, { mode:'cors' });
+            if(!rep.ok) throw new Error('réponse ' + rep.status);
+            const blob = await rep.blob();
+            if(!blob.type.startsWith('image/')) throw new Error('ce n\'est pas une image');
+            await poserImage(blob, 'depuis le web');
+          }catch(err){
+            // « Failed to fetch » ne veut rien dire pour personne : on traduit.
+            const brut = String(err.message||'');
+            const raison = /failed to fetch|networkerror/i.test(brut)
+              ? 'le site refuse que d\'autres pages téléchargent ses images, ou il est injoignable'
+              : brut;
+            modale('Ce site refuse le téléchargement', `
+              <p style="color:var(--texte-doux);margin-top:0;font-size:14.5px">
+                L'image n'a pas pu être récupérée : ${esc(raison)}.
+                C'est une protection du site, elle ne se contourne pas.</p>
+              <p style="font-size:14.5px"><b>La méthode qui marche à tous les coups :</b><br>
+                enregistrez l'image sur votre appareil (clic droit → « Enregistrer l'image sous »,
+                ou appui long sur mobile), puis reprenez avec « 🖼️ Choisir une image ».</p>
+              <p style="font-size:14.5px">Sur ordinateur, « copier l'image » puis <b>Ctrl+V</b> sur le
+                formulaire fonctionne aussi, et contourne le problème.</p>
+              <button class="btn" id="compris" style="justify-content:center">J'ai compris</button>`,
+              c=>{ $('#compris', c).onclick = fermerModale; });
+          }
+        };
+        $('#url-ok', b).onclick = lancer;
+        champ.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); lancer(); } };
+      });
   };
+
+  /* Glisser-déposer sur la zone d'aperçu. */
+  const zoneSchema = $('#zone-schema');
+  zoneSchema.addEventListener('dragover', e=>{ e.preventDefault(); zoneSchema.classList.add('survol'); });
+  zoneSchema.addEventListener('dragleave', ()=>zoneSchema.classList.remove('survol'));
+  zoneSchema.addEventListener('drop', async e=>{
+    e.preventDefault(); zoneSchema.classList.remove('survol');
+    const fichier = [...(e.dataTransfer.files||[])].find(x=>x.type.startsWith('image/'));
+    if(fichier) return poserImage(fichier, 'glissée');
+    // Image glissée depuis un autre onglet : on ne reçoit qu'une adresse.
+    const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+    if(url && /^https?:/.test(url)){
+      try{
+        const rep = await fetch(url, {mode:'cors'});
+        const blob = await rep.blob();
+        if(!blob.type.startsWith('image/')) throw 0;
+        return poserImage(blob, 'depuis le web');
+      }catch{ toast('Ce site refuse le téléchargement — enregistrez l\'image puis choisissez-la'); }
+    }
+  });
+
+  /* Coller une image copiée (Ctrl+V). C'est le chemin le plus fiable pour une
+     image trouvée sur internet : le navigateur a déjà les données, aucun
+     téléchargement à faire, donc aucun refus possible. */
+  if(gestionnaireCollage) document.removeEventListener('paste', gestionnaireCollage);
+  gestionnaireCollage = async e=>{
+    if(!document.querySelector('#zone-schema')) return;   // on a quitté la saisie
+    const item = [...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'));
+    if(!item) return;                                     // du texte collé : on laisse faire
+    e.preventDefault();
+    await poserImage(item.getAsFile(), 'collée');
+  };
+  document.addEventListener('paste', gestionnaireCollage);
 
   /* --- suivi des modifications, pour la garde-fou de sortie --- */
   saisieModifiee = false;
@@ -1260,7 +1379,7 @@ function vueEdition(id){
   $('#form').addEventListener('change', marquerModifie);
   $('#form').addEventListener('click', e=>{
     // seuls les boutons qui changent une valeur comptent, pas « Annuler »
-    if(e.target.closest('.opt, .sugg, .sup, #add-materiel, #add-deroule, #btn-photo, #sup-schema')) marquerModifie();
+    if(e.target.closest('.opt, .sugg, .sup, #add-materiel, #add-deroule, #sup-schema')) marquerModifie();
   });
 
   /* --- enregistrement --- */
@@ -1295,13 +1414,18 @@ function vueEdition(id){
    Objectif : rester nettement sous la limite de 1 Mo par fiche de Firestore.
    -------------------------------------------------------------------------- */
 const TAILLE_MAX_OCTETS = 600 * 1024;
-function compresserImage(fichier){
+
+/* Accepte un fichier choisi, une photo prise, une image collée ou téléchargée :
+   tous arrivent ici sous forme de Blob, que FileReader lit de la même façon. */
+function compresserImage(source){
   return new Promise((resolve,reject)=>{
+    if(!(source instanceof Blob)) return reject(new Error('source inattendue'));
+    if(source.type && !source.type.startsWith('image/')) return reject(new Error('ce fichier n\'est pas une image'));
     const lecteur = new FileReader();
-    lecteur.onerror = reject;
+    lecteur.onerror = ()=>reject(new Error('fichier illisible'));
     lecteur.onload = ()=>{
       const img = new Image();
-      img.onerror = reject;
+      img.onerror = ()=>reject(new Error('format d\'image non reconnu'));
       img.onload = ()=>{
         const MAX = 1400;
         let {width:w, height:h} = img;
@@ -1319,7 +1443,7 @@ function compresserImage(fichier){
       };
       img.src = lecteur.result;
     };
-    lecteur.readAsDataURL(fichier);
+    lecteur.readAsDataURL(source);
   });
 }
 
