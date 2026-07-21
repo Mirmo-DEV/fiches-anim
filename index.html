@@ -737,7 +737,44 @@ function router(){
   vueListe();
   requestAnimationFrame(()=>window.scrollTo(0, defilementListe));
 }
-window.addEventListener('hashchange', router);
+
+/* --------------------------------------------------------------------------
+   Garde-fou sur la saisie.
+   Quitter le formulaire effaçait la fiche en cours sans un mot : un appui sur
+   le bouton retour du téléphone et une demi-heure de rédaction disparaissait.
+   On intercepte le départ, on remet l'adresse comme elle était — ce qui laisse
+   le formulaire intact, avec tout ce qui a été tapé — et on pose la question.
+   -------------------------------------------------------------------------- */
+let saisieModifiee = false;
+let ignorerProchainSaut = false;
+
+function surChangementAdresse(){
+  if(ignorerProchainSaut){ ignorerProchainSaut = false; return; }
+  const cible = location.hash || '#/';
+
+  if(hashPrecedent.startsWith('#/e/') && saisieModifiee && cible !== hashPrecedent){
+    const resterIci = hashPrecedent;
+    ignorerProchainSaut = true;
+    location.hash = resterIci;              // on annule le départ, rien n'est redessiné
+    modale('Abandonner cette fiche ?', `
+      <p style="color:var(--texte-doux);margin-top:0">
+        Ce que vous venez d'écrire n'est pas encore enregistré. Si vous partez maintenant, c'est perdu.</p>
+      <button class="btn btn-p" id="rester" style="justify-content:center">↩ Continuer la saisie</button>
+      <button class="btn btn-danger" id="partir" style="justify-content:center">Abandonner mes modifications</button>`,
+      b=>{
+        $('#rester',b).onclick = fermerModale;
+        $('#partir',b).onclick = ()=>{ fermerModale(); saisieModifiee = false; location.hash = cible; };
+      });
+    return;
+  }
+  router();
+}
+window.addEventListener('hashchange', surChangementAdresse);
+
+/* Même protection si l'onglet est fermé ou la page rechargée. */
+window.addEventListener('beforeunload', e=>{
+  if(saisieModifiee){ e.preventDefault(); e.returnValue = ''; }
+});
 
 /* ==========================================================================
    6. ÉCRAN : LA LISTE
@@ -1157,6 +1194,16 @@ function vueEdition(id){
     e.target.value = '';
   };
 
+  /* --- suivi des modifications, pour la garde-fou de sortie --- */
+  saisieModifiee = false;
+  const marquerModifie = ()=>{ saisieModifiee = true; };
+  $('#form').addEventListener('input', marquerModifie);
+  $('#form').addEventListener('change', marquerModifie);
+  $('#form').addEventListener('click', e=>{
+    // seuls les boutons qui changent une valeur comptent, pas « Annuler »
+    if(e.target.closest('.opt, .sugg, .sup, #add-materiel, #add-deroule, #btn-photo, #sup-schema')) marquerModifie();
+  });
+
   /* --- enregistrement --- */
   $('#annuler').onclick = ()=>history.back();
   $('#form').onsubmit = async ev=>{
@@ -1178,6 +1225,7 @@ function vueEdition(id){
 
     await enregistrer(f);
     brouillonEnCours = null;
+    saisieModifiee = false;   // c'est enregistré : plus rien à protéger
     toast(f.statut==='brouillon' ? 'Enregistrée — à compléter plus tard' : 'Fiche enregistrée');
     aller('#/a/'+f.id);
   };
