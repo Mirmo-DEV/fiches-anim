@@ -362,6 +362,14 @@ textarea.saisie{min-height:90px;resize:vertical;line-height:1.5}
   border-radius:var(--r-s);flex:0 0 44px;font-size:18px}
 .numero{flex:0 0 28px;height:46px;display:grid;place-items:center;font-family:var(--police-chiffre);
   color:var(--texte-doux);font-size:14px}
+.repli{margin-top:9px}
+.repli>summary{
+  cursor:pointer;font-size:14px;color:var(--bleu);padding:8px 2px;min-height:38px;
+  display:flex;align-items:center;gap:6px;list-style:none;
+}
+.repli>summary::-webkit-details-marker{display:none}
+.repli>summary::before{content:'＋';font-weight:700}
+.repli[open]>summary::before{content:'−'}
 .suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
 .sugg{border:1px dashed var(--bord);background:transparent;color:var(--texte-doux);
   padding:6px 11px;border-radius:999px;font-size:13.5px;min-height:36px}
@@ -1070,10 +1078,18 @@ function vueEdition(id){
         ${TRANCHES.map(([a,b])=>`<button type="button" class="opt num" data-age="${a}-${b}"
           aria-pressed="${f.ageMin===a&&f.ageMax===b}">${a}–${b} ans</button>`).join('')}
       </div>
-      <div class="rangee-liste" style="margin-top:9px">
-        <input class="saisie" id="c-amin" type="number" inputmode="numeric" min="1" max="99" placeholder="âge min" value="${f.ageMin??''}">
-        <input class="saisie" id="c-amax" type="number" inputmode="numeric" min="1" max="99" placeholder="âge max" value="${f.ageMax??''}">
-      </div>
+      <!-- L'âge se saisissait deux fois : sept boutons, puis deux champs libres
+           juste en dessous, sans qu'on sache lequel fait foi. Les champs libres
+           passent derrière un repli : une seule façon évidente de faire, et
+           l'échappatoire reste là pour une tranche inhabituelle.
+           (Gain de place réel : 34px. L'intérêt est la clarté, pas la place.) -->
+      <details class="repli" ${f.ageMin && !TRANCHES.some(([a,b])=>a===f.ageMin&&b===f.ageMax) ? 'open':''}>
+        <summary>Une autre tranche d'âge</summary>
+        <div class="rangee-liste" style="margin-top:9px">
+          <input class="saisie" id="c-amin" type="number" inputmode="numeric" min="1" max="99" placeholder="âge min" value="${f.ageMin??''}">
+          <input class="saisie" id="c-amax" type="number" inputmode="numeric" min="1" max="99" placeholder="âge max" value="${f.ageMax??''}">
+        </div>
+      </details>
     </div>
 
     <div class="champ">
